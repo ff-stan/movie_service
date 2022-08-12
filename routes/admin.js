@@ -1,4 +1,6 @@
 var express = require('express');
+const Busboy = require('busboy');
+const fs = require('fs');
 var router = express.Router();
 
 //引入相关的文件和代码包
@@ -18,6 +20,30 @@ function getMD5Password(id) {
     var token_before = id + init_token;
     return md5.update(token_before).digest('hex');
 }
+
+//后台上传文件路由
+router.post('/upload', (req, res) => {
+    //需要验证用户权限
+    console.log(req.headers)
+    //通过请求头信息创建busboy对象
+    let busboy = Busboy({ headers: req.headers })
+    //将流链接到busboy对象
+    req.pipe(busboy)
+    //监听file事件获取文件(字段名，文件，文件名，传输编码，mime类型)
+    busboy.on('file', (filedname, file, filename, encoding, mimetype) => {
+        //创建一个可写流
+        let writeStream = fs.createWriteStream('./public/upload/' + filename.filename)
+        //监听data事件，文件数据接受完毕，关闭这个可写域
+        file.on('data', (data) => writeStream.write(data))
+        // 监听end事件，文件数据接收完毕，关闭这个可写流
+        file.on('end', (data) => writeStream.end())
+        // 监听finish完成事件，完成后定向到首页
+        busboy.on('finish', () => {
+            res.writeHead(303, { Connection: 'close', Location: '/' })
+            res.end()
+        })
+    })
+})
 
 //后台管理需要验证其用户的后台管理权限
 router.post('/adminLogin', function (req, res, next) {
