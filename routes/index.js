@@ -7,6 +7,10 @@ var movie = require('../models/movie');
 var article = require('../models/article');
 var user = require('../models/user');
 
+var filter = require('../utils/sanitize');
+// 过滤参数
+const sanitize = require('mongo-sanitize');
+
 /* GET home page */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
@@ -57,10 +61,13 @@ router.get('/showArticle',function(req,res,next){
 //显示文章的内容
 router.post('/articleDetail',function(req,res,next){
   //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-  if(!req.body.article_id){
+  let reqs = filter(req.body, function (prams) {
+    return sanitize(prams);
+  });
+  if(!reqs.article_id){
     res.json({status:1,message:"文章id出错"});
   }
-  article.findByArticleId(req.body.article_id,function(err,getArticle){
+  article.findByArticleId(reqs.article_id,function(err,getArticle){
     res.json({status:0,message:"获取成功",data:getArticle});
   });
 });
@@ -68,10 +75,13 @@ router.post('/articleDetail',function(req,res,next){
 //显示用户个人信息的内容
 router.post('/showUser',function(req,res,next){
   //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-  if(!req.body.user_id){
+  let reqs = filter(req.body, function (prams) {
+    return sanitize(prams);
+  });
+  if(!reqs.user_id){
     res.json({status:1,message:"用户状态出错"});
   }
-  user.findById(req.body.user_id,function(err,getUser){
+  user.findById(reqs.user_id,function(err,getUser){
     res.json({status:0,message:"获取成功",data:{
       user_id:getUser._id,
       username:getUser.username,

@@ -1,6 +1,9 @@
 var express = require('express');
 const Busboy = require('busboy');
 const fs = require('fs');
+var filter = require('../utils/sanitize');
+// 过滤参数
+const sanitize = require('mongo-sanitize');
 var router = express.Router();
 
 //引入相关的文件和代码包
@@ -22,60 +25,63 @@ function getMD5Password(id) {
 }
 
 //后台上传文件路由
-router.post('/upload', (req, res) => {
-    //需要验证用户权限
-    var x = 0;
-    if (!req.headers) {
-        res.json({ status: 1, message: "请求头错误" });
-        x += 1;
-    }
-    //验证
-    user.checkAdminPower(req.headers.username, req.headers.id, function (err, findUser) {
-        //验证用户的情况
-        if (!err) {
-            if (req.headers.username && req.headers.token && req.headers.id) {
-                if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
-                    //通过请求头信息创建busboy对象
-                    let busboy = Busboy({ headers: req.headers })
-                    //将流链接到busboy对象
-                    req.pipe(busboy)
-                    //监听file事件获取文件(字段名，文件，文件名，传输编码，mime类型)
-                    busboy.on('file', (filedname, file, filename, encoding, mimetype) => {
-                        //创建一个可写流
-                        let writeStream = fs.createWriteStream('./public/upload/' + filename.filename)
-                        //监听data事件，文件数据接受完毕，关闭这个可写域
-                        file.on('data', (data) => writeStream.write(data))
-                        // 监听end事件，文件数据接收完毕，关闭这个可写流
-                        file.on('end', (data) => writeStream.end())
-                        // 监听finish完成事件，完成后定向到首页
-                        busboy.on('finish', () => {
-                            res.json({ status: 0, message: "文件上传成功" });
-                            res.end()
-                        })
-                    })
-                } else {
-                    res.json({ status: 1, message: "用户没有权限或者已被停用" });
-                }
-            } else {
-                res.json({ status: 1, message: "用户状态出错" });
-            }
-        } else {
-            res.json({ status: 1, message: err });
-        }
-    });
-});
+// router.post('/upload', (req, res) => {
+//     //需要验证用户权限
+//     var x = 0;
+//     if (!req.headers) {
+//         res.json({ status: 1, message: "请求头错误" });
+//         x += 1;
+//     }
+//     //验证
+//     user.checkAdminPower(req.headers.username, req.headers.id, function (err, findUser) {
+//         //验证用户的情况
+//         if (!err) {
+//             if (req.headers.username && req.headers.token && req.headers.id) {
+//                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
+//                     //通过请求头信息创建busboy对象
+//                     let busboy = Busboy({ headers: req.headers })
+//                     //将流链接到busboy对象
+//                     req.pipe(busboy)
+//                     //监听file事件获取文件(字段名，文件，文件名，传输编码，mime类型)
+//                     busboy.on('file', (filedname, file, filename, encoding, mimetype) => {
+//                         //创建一个可写流
+//                         let writeStream = fs.createWriteStream('./public/upload/' + filename.filename)
+//                         //监听data事件，文件数据接受完毕，关闭这个可写域
+//                         file.on('data', (data) => writeStream.write(data))
+//                         // 监听end事件，文件数据接收完毕，关闭这个可写流
+//                         file.on('end', (data) => writeStream.end())
+//                         // 监听finish完成事件，完成后定向到首页
+//                         busboy.on('finish', () => {
+//                             res.json({ status: 0, message: "文件上传成功" });
+//                             res.end()
+//                         })
+//                     })
+//                 } else {
+//                     res.json({ status: 1, message: "用户没有权限或者已被停用" });
+//                 }
+//             } else {
+//                 res.json({ status: 1, message: "用户状态出错" });
+//             }
+//         } else {
+//             res.json({ status: 1, message: err });
+//         }
+//     });
+// });
 
 
 //后台管理需要验证其用户的后台管理权限
 router.post('/adminLogin', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-    if (!req.body.userName) {
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
+    if (!reqs.userName) {
         res.json({ status: 1, message: "用户名为空" });
     }
-    if (!req.body.password) {
+    if (!reqs.password) {
         res.json({ status: 1, message: "密码为空" });
     }
-    user.findAdmin(req.body.userName, req.body.password, function (err, userSave) {
+    user.findAdmin(reqs.userName, reqs.password, function (err, userSave) {
         if (userSave.length != 0) {
             //通过MD5查看密码
             var token_after = getMD5Password(userSave[0]._id);
@@ -88,43 +94,46 @@ router.post('/adminLogin', function (req, res, next) {
 //后台管理admin 添加新电影
 router.post('/movieAdd', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.movieName) {
+    if (!reqs.movieName) {
         res.json({ status: 1, message: "电影名称为空" });
         x += 1;
     }
-    if (!req.body.movieImg) {
+    if (!reqs.movieImg) {
         res.json({ status: 1, message: "电影图片为空" });
         x += 1;
     }
-    if (!req.body.movieDownload) {
+    if (!reqs.movieDownload) {
         res.json({ status: 1, message: "电影下载地址为空" });
         x += 1;
     }
-    if (!req.body.movieContext) {
+    if (!reqs.movieContext) {
         res.json({ status: 1, message: "电影介绍为空" });
         x += 1;
     }
-    if (!req.body.movieMainPage) {
+    if (!reqs.movieMainPage) {
         var movieMainPage = false;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //根据数据集建立需要存入数据库的内容
                     var saveMovie = new movie({
-                        movieName: req.body.movieName,
-                        movieContext: req.body.movieContext,
-                        movieImg: req.body.movieImg,
-                        movieVideo: req.body.movieVideo,
-                        movieDownload: req.body.movieDownload,
-                        movieCategory: req.body.movieCategory,
-                        movieArea: req.body.movieArea,
-                        movieDuration: req.body.movieDuration,
-                        movieCastMembers: req.body.movieCastMembers,
+                        movieName: reqs.movieName,
+                        movieContext: reqs.movieContext,
+                        movieImg: reqs.movieImg,
+                        movieVideo: reqs.movieVideo,
+                        movieDownload: reqs.movieDownload,
+                        movieCategory: reqs.movieCategory,
+                        movieArea: reqs.movieArea,
+                        movieDuration: reqs.movieDuration,
+                        movieCastMembers: reqs.movieCastMembers,
                         movieTime: Date.now(),
                         movieNumSuppose: 0,
                         movieNumDownload: 0,
@@ -151,19 +160,22 @@ router.post('/movieAdd', function (req, res, next) {
 //后台管理admin 删除电影
 router.post('/movieDel', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.movieId) {
+    if (!reqs.movieId) {
         res.json({ status: 1, message: "电影id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //根据movieId删除对应内容
-                    movie.remove({ _id: req.body.movieId }, function (err, delMovie) {
+                    movie.remove({ _id: reqs.movieId }, function (err, delMovie) {
                         res.json({ status: 0, message: '删除成功', data: delMovie });
                     });
                 } else {
@@ -180,21 +192,24 @@ router.post('/movieDel', function (req, res, next) {
 //后台管理admin 更新电影条目
 router.post('/movieUpdate', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.movieId) {
+    if (!reqs.movieId) {
         res.json({ status: 1, message: "电影id传递失败" });
         x += 1;
     }
     //这里前台打包一个电影对象全部发送至后台直接存储
-    var saveData = req.body.movieInfo;
+    var saveData = reqs.movieInfo;
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //猜测根据movieID来替换数据库数据
-                    movie.update({ _id: req.body.movieId }, saveData, function (err, updateMovie) {
+                    movie.update({ _id: reqs.movieId }, saveData, function (err, updateMovie) {
                         res.json({ status: 0, message: '更新成功', data: updateMovie });
                     });
                 } else {
@@ -223,19 +238,22 @@ router.get('/commentsList', function (req, res, next) {
 //将评论进行审核 未审核过的不予展示
 router.post('/checkComment', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.commentId) {
+    if (!reqs.commentId) {
         res.json({ status: 1, message: "评论id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //更新操作
-                    comment.update({ _id: req.body.commentId }, { check: true }, function (err, updateComment) {
+                    comment.update({ _id: reqs.commentId }, { check: true }, function (err, updateComment) {
                         res.json({ status: 0, message: '审核成功', data: updateComment });
                     });
                 } else {
@@ -252,20 +270,23 @@ router.post('/checkComment', function (req, res, next) {
 //删除评论
 router.post('/delComment', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.commentId) {
+    if (!reqs.commentId) {
         res.json({ status: 1, message: "评论id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //在真正的环境下 删除数据需要谨慎在谨慎 最好是应用回收站的机制
                     //使其暂存 而不是直接删除 这样可以保证进行回档和保存
-                    comment.remove({ _id: req.body.commentId }, function (err, delComment) {
+                    comment.remove({ _id: reqs.commentId }, function (err, delComment) {
                         res.json({ status: 0, message: '删除成功', data: delComment });
                     });
                 } else {
@@ -282,19 +303,22 @@ router.post('/delComment', function (req, res, next) {
 //封停用户
 router.post('/stopUser', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.userId) {
+    if (!reqs.userId) {
         res.json({ status: 1, message: "用户id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //更新操作
-                    user.update({ _id: req.body.userId }, { userStop: true }, function (err, updateUser) {
+                    user.update({ _id: reqs.userId }, { userStop: true }, function (err, updateUser) {
                         res.json({ status: 0, message: '封停成功', data: updateUser });
                     });
                 } else {
@@ -311,19 +335,22 @@ router.post('/stopUser', function (req, res, next) {
 //解封用户
 router.post('/relieveStop', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.userId) {
+    if (!reqs.userId) {
         res.json({ status: 1, message: "用户id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //更新操作
-                    user.update({ _id: req.body.userId }, { userStop: false }, function (err, updateUser) {
+                    user.update({ _id: reqs.userId }, { userStop: false }, function (err, updateUser) {
                         res.json({ status: 0, message: '解封成功', data: updateUser });
                     });
                 } else {
@@ -341,23 +368,26 @@ router.post('/relieveStop', function (req, res, next) {
 //更新用户密码(管理员)
 router.post('/changeUser', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.userId) {
+    if (!reqs.userId) {
         res.json({ status: 1, message: "用户id传递失败" });
         x += 1;
     }
-    if (!req.body.newPassword) {
+    if (!reqs.newPassword) {
         res.json({ status: 1, message: "用户新密码错误" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //更新操作
-                    user.update({ _id: req.body.userId }, { password: req.body.newPassword }, function (err, changeUser) {
+                    user.update({ _id: reqs.userId }, { password: reqs.newPassword }, function (err, changeUser) {
                         res.json({ status: 0, message: '更改成功', data: changeUser });
                     });
                 } else {
@@ -374,11 +404,14 @@ router.post('/changeUser', function (req, res, next) {
 //显示所有用户
 router.post('/showUser', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //更新操作
                     user.findAll(function (err, allUser) {
@@ -398,19 +431,22 @@ router.post('/showUser', function (req, res, next) {
 //管理用户权限
 router.post('/powerUpdate', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.userId) {
+    if (!reqs.userId) {
         res.json({ status: 1, message: "用户id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //更新操作
-                    user.update({ _id: req.body.userId }, { userPower: 1, userAdmin: true }, function (err, updateUser) {
+                    user.update({ _id: reqs.userId }, { userPower: 1, userAdmin: true }, function (err, updateUser) {
                         res.json({ status: 0, message: '修改成功', data: updateUser });
                     });
                 } else {
@@ -427,28 +463,31 @@ router.post('/powerUpdate', function (req, res, next) {
 //新增文章
 router.post('/addArticle', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.articleTitle) {
+    if (!reqs.articleTitle) {
         res.json({ status: 1, message: "文章名称为空" });
         x += 1;
     }
-    if (!req.body.articleContext) {
+    if (!reqs.articleContext) {
         res.json({ status: 1, message: "文章内容为空" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //在有权限的情况下 更新操作
                     var saveArticle = new article({
-                        articleTitle: req.body.articleTitle,
-                        articleContext: req.body.articleContext,
+                        articleTitle: reqs.articleTitle,
+                        articleContext: reqs.articleContext,
                         articleTime: Date.now(),
                         articleNumSuppose: 0,
-                        articleAuthor: req.body.articleAuthor
+                        articleAuthor: reqs.articleAuthor
                     });
                     saveArticle.save(function (err) {
                         if (err) {
@@ -471,21 +510,24 @@ router.post('/addArticle', function (req, res, next) {
 //后台管理admin 更新电影条目
 router.post('/articleUpdate', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.articleId) {
+    if (!reqs.articleId) {
         res.json({ status: 1, message: "文章id传递失败" });
         x += 1;
     }
     //这里前台打包一个电影对象全部发送至后台直接存储
-    var saveData = req.body.articleInfo;
+    var saveData = reqs.articleInfo;
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //猜测根据movieID来替换数据库数据
-                    article.update({ _id: req.body.articleId }, saveData, function (err, updatearticle) {
+                    article.update({ _id: reqs.articleId }, saveData, function (err, updatearticle) {
                         res.json({ status: 0, message: '更新成功', data: updatearticle });
                     });
                 } else {
@@ -502,20 +544,23 @@ router.post('/articleUpdate', function (req, res, next) {
 //删除文章
 router.post('/delArticle', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.articleId) {
+    if (!reqs.articleId) {
         res.json({ status: 1, message: "文章id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //在真正的环境下 删除数据需要谨慎在谨慎 最好是应用回收站的机制
                     //使其暂存 而不是直接删除 这样可以保证进行回档和保存
-                    article.remove({ _id: req.body.articleId }, function (err, delArticle) {
+                    article.remove({ _id: reqs.articleId }, function (err, delArticle) {
                         res.json({ status: 0, message: '删除成功', data: delArticle });
                     });
                 } else {
@@ -532,30 +577,33 @@ router.post('/delArticle', function (req, res, next) {
 //新增主页推荐
 router.post('/addRecommend', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.recommendImg) {
+    if (!reqs.recommendImg) {
         res.json({ status: 1, message: "推荐图片为空" });
         x += 1;
     }
-    if (!req.body.recommendSrc) {
+    if (!reqs.recommendSrc) {
         res.json({ status: 1, message: "推荐跳转地址为空" });
         x += 1;
     }
-    if (!req.body.recommendTitle) {
+    if (!reqs.recommendTitle) {
         res.json({ status: 1, message: "推荐标题为空" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //在有权限的情况下 更新操作
                     var saveRecommend = new recommend({
-                        recommendImg: req.body.recommendImg,
-                        recommendSrc: req.body.recommendSrc,
-                        recommendTitle: req.body.recommendTitle
+                        recommendImg: reqs.recommendImg,
+                        recommendSrc: reqs.recommendSrc,
+                        recommendTitle: reqs.recommendTitle
                     });
                     saveRecommend.save(function (err) {
                         if (err) {
@@ -578,20 +626,23 @@ router.post('/addRecommend', function (req, res, next) {
 //删除主页推荐
 router.post('/delRecommend', function (req, res, next) {
     //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
+    let reqs = filter(req.body, function (prams) {
+        return sanitize(prams);
+      });
     var x = 0;
-    if (!req.body.recommendId) {
+    if (!reqs.recommendId) {
         res.json({ status: 1, message: "id传递失败" });
         x += 1;
     }
     //验证
-    user.checkAdminPower(req.body.userName, req.body.id, function (err, findUser) {
+    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
         //验证用户的情况
         if (!err) {
-            if (req.body.userName && req.body.token && req.body.id) {
+            if (reqs.userName && reqs.token && reqs.id) {
                 if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
                     //在真正的环境下 删除数据需要谨慎在谨慎 最好是应用回收站的机制
                     //使其暂存 而不是直接删除 这样可以保证进行回档和保存
-                    recommend.remove({ _id: req.body.recommendId }, function (err, delRecommend) {
+                    recommend.remove({ _id: reqs.recommendId }, function (err, delRecommend) {
                         res.json({ status: 0, message: '删除成功', data: delRecommend });
                     });
                 } else {

@@ -16,8 +16,23 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
+    "mongo-sanitize": "^1.1.0",
     "mongoose": "^6.5.2",
     "morgan": "~1.9.1",
     "vue-router": "^4.0.14"
-  }
+  },
+  "description": "movieProject的API服务端",
+  "main": "app.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ff-stan/movie_service.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ff-stan/movie_service/issues"
+  },
+  "homepage": "https://github.com/ff-stan/movie_service#readme"
 }
