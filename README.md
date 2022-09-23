@@ -4,7 +4,7 @@ movieProject的API服务端
 
 #技术栈
 
-vue2+node+express+mongoDB
+node+express+mongoDB
 
 #安装依赖
 
