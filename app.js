@@ -35,7 +35,7 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 // 设置静态文件路径
 app.use(express.static(__dirname + '/public'))
@@ -50,7 +50,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+// 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
+app.use("/static",express.static(path.join(__dirname, 'public')));
 
 // 设置路由路径
 app.use('/', indexRouter);
@@ -59,12 +60,13 @@ app.use('/admin',adminRouter);
 app.use('/movie',movieRouter);
 
 
-// catch 404 and forward to error handler
+// 返回404
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// 错误信息处理 必须在所有其它的app.use()和路由调用后才能调用 
+// 因此它们是需求处理过程中最后的中间件
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;

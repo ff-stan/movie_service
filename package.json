@@ -7,6 +7,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "async": "^3.2.4",
     "body-parser": "^1.19.2",
     "busboy": "^1.6.0",
     "cookie-parser": "~1.4.4",
@@ -14,16 +15,17 @@
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "express-validator": "^6.14.2",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^6.5.2",
     "morgan": "~1.9.1",
+    "pug": "^3.0.2",
     "vue-router": "^4.0.14"
   },
   "description": "movieProject的API服务端",
   "main": "app.js",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ff-stan/movie_service.git"
