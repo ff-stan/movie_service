@@ -4,8 +4,6 @@ const router = express.Router()
 // 引入控制器
 const user_controller = require('../controllers/User')
 
-
-/* GET users listing. */
 //用户登录接口
 router.post('/login', user_controller.user_login)
 
@@ -28,6 +26,6 @@ router.put('/download', user_controller.user_download)
 router.post('/sendEmail', user_controller.user_sendEmail)
 
 //用户显示站内信 
-router.post('/showEmail',user_controller.user_showEmail)
+router.get('/showEmail',user_controller.user_showEmail)
 
 module.exports = router

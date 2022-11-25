@@ -1,10 +1,10 @@
 # movie_service
 
-movieProject的API服务端
+movieProject的API服务端 符合RESTful API接口规范
 
 #技术栈
 
-vue2+node+express+mongoDB
+node+express+mongoDB
 
 #安装依赖
 
