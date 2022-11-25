@@ -13,6 +13,10 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
 
+const jwt = require("jsonwebtoken");
+const { expressjwt } = require("express-jwt");
+const secretKey = 'Amadeus'
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var adminRouter = require('./routes/admin');
@@ -36,6 +40,13 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+// 只要配置成功 express-jwt 就可以把解析出来的用户信息 挂载到req.auth属性上
+app.use(
+  expressjwt({ secret: secretKey, algorithms: ["HS256"] }).unless({
+    path: ['/users/login','/users/register'],
+  })
+);
 
 // 设置静态文件路径
 app.use(express.static(__dirname + '/public'))
@@ -64,6 +75,20 @@ app.use('/movie',movieRouter);
 app.use(function(req, res, next) {
   next(createError(404));
 });
+// token错误信息处理 
+app.use((err, req, res, next) => {
+  // 这次错误是由 token 解析失败导致的
+  if (err.name === 'UnauthorizedError') {
+    return res.send({
+      status: 401,
+      message: '无效的token',
+    })
+  }
+  res.send({
+    status: 500,
+    message: '未知的错误',
+  })
+})
 
 // 错误信息处理 必须在所有其它的app.use()和路由调用后才能调用 
 // 因此它们是需求处理过程中最后的中间件

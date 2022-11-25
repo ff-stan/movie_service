@@ -1,6 +1,6 @@
 # movie_service
 
-movieProject的API服务端
+movieProject的API服务端 符合RESTful API接口规范
 
 #技术栈
 
