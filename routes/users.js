@@ -11,7 +11,7 @@ router.post('/login', user_controller.user_login)
 router.post('/register',user_controller.user_regiest)
 
 //用户提交评论
-router.post('/postComment',user_controller.user_comment)
+router.post('/movieComment',user_controller.user_comment)
 
 //用户点赞
 router.put('/support', user_controller.user_support)
