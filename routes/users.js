@@ -14,13 +14,13 @@ router.post('/register',user_controller.user_regiest)
 router.post('/movieComment',user_controller.user_comment)
 
 //用户点赞
-router.put('/support', user_controller.user_support)
+router.put('/support/:movie_id', user_controller.user_support)
 
 //用户找回密码
 router.post('/findPassword',user_controller.user_findPassword)
 
 //用户下载只返回下载地址
-router.put('/download', user_controller.user_download)
+router.put('/download/:movie_id', user_controller.user_download)
 
 //用户发送站内信
 router.post('/sendEmail', user_controller.user_sendEmail)

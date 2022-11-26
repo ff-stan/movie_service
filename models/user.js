@@ -22,8 +22,10 @@ user.statics.findAdmin = function(name,password,callBack){
 };
 
 //使用用户名查找的方式
-user.statics.findByUsername = function(name,callBack){
-    this.find({username:name},callBack);
+user.statics.findByUsername = function(name){
+    return new Promise((res,rej) => {
+        res(this.find({username:name}))
+    }) 
 };
 
 user.statics.checkAdminPower = function(name,id,callBack){

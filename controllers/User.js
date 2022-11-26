@@ -3,9 +3,9 @@ const Movie = require('../models/movie')
 const Comment = require('../models/comment')
 const Mail = require('../models/mail')
 
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken")
 
-const { body, validationResult, check } = require('express-validator')
+const { body, validationResult, check, checkSchema } = require('express-validator')
 
 // 秘钥
 const secretKey = 'Amadeus'
@@ -14,9 +14,6 @@ exports.user_login = [
     // 清洗请求过来的数据
     body('userName', '用户名为空!').trim().notEmpty(),
     body('password', '密码为空!').trim().notEmpty(),
-    // 去除两边空格并覆盖
-    body('password').trim().escape(),
-    body('userName').trim().escape(),
     (req, res, next) => {
         // 当验证出现错误时返回错误信息集
         if (checkError(req, res)) {
@@ -70,11 +67,7 @@ exports.user_regiest = [
     body('userPhone', '电话号码为空!').trim().notEmpty(),
     body('userPhone', "最少长度为11个字符!").isLength({ min: 11 }),
     body('userPhone', '请用数字输入!').isInt(),
-    // 去除两边空格并覆盖
-    body('userName').trim().escape(),
-    body('password').trim().escape(),
-    body('puserMail').trim().escape(),
-    body('userPhone').trim().escape(),
+
     (req, res, next) => {
         // 创建数据模型实例
         var user = new User({
@@ -125,9 +118,6 @@ exports.user_comment = [
     // 清洗请求过来的数据
     body('movie_id', '电影id为空!').trim().notEmpty(),
     body('context', '评论内容为空!').trim().notEmpty(),
-    // 去除两边空格并覆盖
-    body('movie_id').trim().escape(),
-    body('context').trim().escape(),
     (req, res, next) => {
         //  创建一个新的模型
         var comment = new Comment({
@@ -156,36 +146,44 @@ exports.user_comment = [
 
 // 用户点赞(暂不设限)
 exports.user_support = [
-    body('movie_id', "电影id传递失败").trim().notEmpty(),
-    // 去除两边空格并覆盖
-    body("movie_id").trim().escape(),
+    // 验证在路由中的参数
+    checkSchema({
+        movie_id: {
+            in: ['params', 'query'],
+            errorMessage: '电影id传递错误',
+            isEmpty: false
+        }
+    }),
     (req, res, next) => {
         if (checkError(req, res)) {
 
         } else {
-            Movie.updateOne({
-                _id: req.body.movie_id
-            },
+            Movie.findOneAndUpdate(
                 {
-                    // 给这个数值加上对应的值
+                    _id: req.params.movie_id
+                },
+                {
+                    // 更新下载次数
                     $inc: {
                         movieNumSuppose: 1
                     }
-                }).exec((err, upData_movie) => {
+                },
+                {
+                    // 每一次返回更新后的数据
+                    new: true
+                })
+                .exec((err, find_movie) => {
                     if (err) {
-                        returnErr(res, err, next, errStatus = 500)
+                        returnErr(res, err, next, err = "点赞失败！", errStatus = 500)
                         return;
                     }
-                    // 判断是否匹配到对应数据集
-                    if (upData_movie.matchedCount === 0) {
-                        res.status(500).json({
-                            status: 1,
-                            message: "点赞失败!"
-                        })
-                    } else {
+                    if (find_movie) {
                         res.json({
                             status: 0,
-                            message: "点赞成功!"
+                            message: "点赞成功!",
+                            data: {
+                                movieNumSuppose: find_movie.movieNumSuppose,
+                            }
                         })
                     }
                 })
@@ -195,15 +193,21 @@ exports.user_support = [
 
 // 用户请求下载地址
 exports.user_download = [
-    body("movie_id", "电影数据传递错误").trim().notEmpty(),
-    body('movie_id').trim().escape(),
+    // 验证在路由中的参数
+    checkSchema({
+        movie_id: {
+            in: ['params', 'query'],
+            errorMessage: '电影id传递错误',
+            isEmpty: false
+        }
+    }),
     (req, res, next) => {
         if (checkError(req, res)) {
 
         } else {
             Movie.findOneAndUpdate(
                 {
-                    _id: req.body.movie_id
+                    _id: req.params.movie_id
                 },
                 {
                     // 更新下载次数
@@ -240,10 +244,6 @@ exports.user_findPassword = [
     body("userMail", "邮箱验证错误").trim().isEmail().normalizeEmail(),
     body("userPhone", "手机为空").trim().notEmpty(),
     body('rePassword', "密码为空").trim().notEmpty(),
-    // 去除两边空格并覆盖
-    body("userMail").trim().escape(),
-    body("userPhone").trim().escape(),
-    body("rePassword").trim().escape(),
     (req, res, next) => {
         if (checkError(req, res)) {
 
@@ -284,14 +284,17 @@ exports.user_findPassword = [
 
 // 用户发送站内信
 exports.user_sendEmail = [
-    body("toUserName", "未选择接收用户名").trim().notEmpty(),
+    // 验证是否有对应的接收用户
+    check("toUserName").trim().notEmpty().withMessage("未选择接收用户名").custom((value) => {
+        return User.findByUsername(value).then((user) => {
+            console.log(user)
+            if (user.length === 0) {
+                return Promise.reject('选择的用户名不存在')
+            }
+        })
+    }).withMessage("选择的用户名不存在"),
     body("title", "标题为空").trim().notEmpty(),
     body("context", "内容为空").trim().notEmpty(),
-
-    // 去除左右空格
-    body("toUserName").trim().escape(),
-    body("title").trim().escape(),
-    body("context").trim().escape(),
     (req, res, next) => {
         if (checkError(req, res)) {
 
