@@ -6,6 +6,7 @@ var filter = require('../utils/sanitize');
 const sanitize = require('mongo-sanitize');
 var router = express.Router();
 
+const admin_controllers = require("../controllers/Admin")
 //引入相关的文件和代码包
 var user = require('../models/user');
 var crypto = require('crypto');
@@ -70,165 +71,17 @@ function getMD5Password(id) {
 
 
 //后台管理需要验证其用户的后台管理权限
-router.post('/adminLogin', function (req, res, next) {
-    //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if (!reqs.userName) {
-        res.json({ status: 1, message: "用户名为空" });
-    }
-    if (!reqs.password) {
-        res.json({ status: 1, message: "密码为空" });
-    }
-    user.findAdmin(reqs.userName, reqs.password, function (err, userSave) {
-        if (userSave.length != 0) {
-            //通过MD5查看密码
-            var token_after = getMD5Password(userSave[0]._id);
-            res.json({ status: 0, data: { token_after, user: userSave }, message: "管理员登录成功" });
-        } else {
-            res.json({ status: 1, message: "用户名或密码错误或不是管理员账户" });
-        }
-    })
-});
+router.post('/adminLogin',admin_controllers.admin_adminLogin )
+
 //后台管理admin 添加新电影
-router.post('/movieAdd', function (req, res, next) {
-    //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    var x = 0;
-    if (!reqs.movieName) {
-        res.json({ status: 1, message: "电影名称为空" });
-        x += 1;
-    }
-    if (!reqs.movieImg) {
-        res.json({ status: 1, message: "电影图片为空" });
-        x += 1;
-    }
-    if (!reqs.movieDownload) {
-        res.json({ status: 1, message: "电影下载地址为空" });
-        x += 1;
-    }
-    if (!reqs.movieContext) {
-        res.json({ status: 1, message: "电影介绍为空" });
-        x += 1;
-    }
-    if (!reqs.movieMainPage) {
-        var movieMainPage = false;
-    }
-    //验证
-    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
-        //验证用户的情况
-        if (!err) {
-            if (reqs.userName && reqs.token && reqs.id) {
-                if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
-                    //根据数据集建立需要存入数据库的内容
-                    var saveMovie = new movie({
-                        movieName: reqs.movieName,
-                        movieContext: reqs.movieContext,
-                        movieImg: reqs.movieImg,
-                        movieVideo: reqs.movieVideo,
-                        movieDownload: reqs.movieDownload,
-                        movieCategory: reqs.movieCategory,
-                        movieArea: reqs.movieArea,
-                        movieDuration: reqs.movieDuration,
-                        movieCastMembers: reqs.movieCastMembers,
-                        movieTime: Date.now(),
-                        movieNumSuppose: 0,
-                        movieNumDownload: 0,
-                        movieMainPage: movieMainPage
-                    });
-                    saveMovie.save(function (err) {
-                        if (err) {
-                            res.json({ status: 1, message: err });
-                        } else {
-                            res.json({ status: 0, message: "添加成功" });
-                        }
-                    });
-                } else {
-                    res.json({ status: 1, message: "用户没有权限或者已被停用" });
-                }
-            } else {
-                res.json({ status: 1, message: "用户状态出错" });
-            }
-        } else {
-            res.json({ status: 1, message: err });
-        }
-    });
-});
+router.post('/movie', admin_controllers.admin_addMovieData)
 //后台管理admin 删除电影
-router.post('/movieDel', function (req, res, next) {
-    //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    var x = 0;
-    if (!reqs.movieId) {
-        res.json({ status: 1, message: "电影id传递失败" });
-        x += 1;
-    }
-    //验证
-    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
-        //验证用户的情况
-        if (!err) {
-            if (reqs.userName && reqs.token && reqs.id) {
-                if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
-                    //根据movieId删除对应内容
-                    movie.remove({ _id: reqs.movieId }, function (err, delMovie) {
-                        res.json({ status: 0, message: '删除成功', data: delMovie });
-                    });
-                } else {
-                    res.json({ status: 1, message: "用户没有权限或者已被停用" });
-                }
-            } else {
-                res.json({ status: 1, message: "用户状态出错" });
-            }
-        } else {
-            res.json({ status: 1, message: err });
-        }
-    });
-});
+router.delete('/movie/:movie_id', admin_controllers.admin_delMovieData)
 //后台管理admin 更新电影条目
-router.post('/movieUpdate', function (req, res, next) {
-    //验证完整性 这里使用简单的if方式 可以使用正则表达式对输入的格式进行验证
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    var x = 0;
-    if (!reqs.movieId) {
-        res.json({ status: 1, message: "电影id传递失败" });
-        x += 1;
-    }
-    //这里前台打包一个电影对象全部发送至后台直接存储
-    var saveData = reqs.movieInfo;
-    //验证
-    user.checkAdminPower(reqs.userName, reqs.id, function (err, findUser) {
-        //验证用户的情况
-        if (!err) {
-            if (reqs.userName && reqs.token && reqs.id) {
-                if (findUser[0].userAdmin === true && !findUser[0].userStop && findUser[0].userPower === 1 && x < 1) {
-                    //猜测根据movieID来替换数据库数据
-                    movie.update({ _id: reqs.movieId }, saveData, function (err, updateMovie) {
-                        res.json({ status: 0, message: '更新成功', data: updateMovie });
-                    });
-                } else {
-                    res.json({ status: 1, message: "用户没有权限或者已被停用" });
-                }
-            } else {
-                res.json({ status: 1, message: "用户状态出错" });
-            }
-        } else {
-            res.json({ status: 1, message: err });
-        }
-    });
-});
+router.put('/movie/:movie_id', admin_controllers.admin_upMovieData)
 //用get方式获取 显示所有电影数据
-router.get('/movie', function (req, res, next) {
-    movie.findAll(function (err, allMovie) {
-        res.json({ status: 0, message: "获取成功", data: allMovie });
-    });
-});
+router.get('/movie', admin_controllers.admin_movieData)
+
 //用get方式获取 显示后台所有评论
 router.get('/commentsList', function (req, res, next) {
     comment.findAll(function (err, allComment) {
