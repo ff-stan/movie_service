@@ -1,134 +1,25 @@
-var express = require('express');
-var router = express.Router();
-var movie = require('../models/movie');
-var comment=require('../models/comment');
-var filter = require('../utils/sanitize');
-// 过滤参数
-const sanitize = require('mongo-sanitize');
+const express = require('express')
+const router = express.Router()
 
-router.get('/', function (req, res, next) {
-    res.render('index', {title: 'Express'});
-});
+// 引入控制器
+const movie_controller = require('../controllers/Movie')
+
 //获得所有的电影列表
-router.get('/list', function (req, res, next) {
-    movie.findAll(function (err, allMovie) {
-        res.json({status: 0, message: '获取成功', data: allMovie})
-    })
-});
+router.get('/', movie_controller.movie_allMovieData)
 
-
-//获得下载地址并将更新+1
-//用户下载只返回下载地址
-router.post('/download', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if (!reqs.movie_id) {
-        res.json({status: 1, message: "电影id传递失败"})
-    }else{
-        movie.findById(reqs.movie_id, function (err, supportMovie) {
-            movie.update({_id: reqs.movie_id}, {movieNumDownload: supportMovie[0].movieNumDownload + 1}, function (err) {
-                if (err) {
-                    res.json({status: 1, message: "下载失败", data: err})
-                }
-                res.json({status: 0, message: '下载成功', movieDownload: supportMovie[0].movieDownload})
-            })
-        })
-    }
-
-});
+// 返回下载地址
+router.put('/download/:movie_id', movie_controller.movie_download)
 
 //获取相关电影的详细信息
-router.post('/detail', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if(reqs.id) {
-        movie.findById(reqs.id,function (err, getMovie) {
-            res.json({status: 0, message: '获取成功', data: getMovie})
-        })
-    }else{
-        res.json({status:1,message:'获取失败'})
-    }
-});
+router.get('/details/:movie_id', movie_controller.movie_movieDetails)
 
 //获取相关电影的评论
-router.post('/comment', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if(reqs.id) {
-        comment.findByMovieId(reqs.id, function (err, getComment) {
-            res.json({status: 0, message: '获取成功', data:getComment})
-        })
-
-    }else{
-        res.json({status:1,message:'获取失败'})
-    }
-});
-
-//获取相关电影的点赞和下载数(更改后)
-router.post('/showNumber', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if(reqs.id) {
-        movie.findById(reqs.id,function (err, getMovie) {
-            res.json({status: 0, message: '获取成功', data: {movieNumDownload: getMovie[0].movieNumDownload,movieNumSuppose:getMovie[0].movieNumSuppose}})
-            // res.json({status: 0, message: '获取成功', data: getMovie[0]})
-        })
-    }else{
-        res.json({status:1,message:'获取失败'})
-    }
-});
+router.get('/comment/:movie_id', movie_controller.movie_movieComment)
 
 //获取主页电影推荐
-router.post('/getIndexMovie', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if(reqs.id) {
-        movie.find({movieMainPage:true}, function (err, allMovie) {
-            res.json({status: 0, message: '获取成功', data:allMovie})
-        })
-    }else{
-        res.json({status:1,message:'获取失败'})
-    }
-});
+router.get('/recommend', movie_controller.movie_movieRecommend)
 
-//获取一个电影的评论
-router.post('/getMovieComment', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if(reqs.id) {
-        comment.findByMovieId(reqs.id, function (err, allComment) {
-            res.json({status: 0, message: '获取成功', data:allComment})
-        })
-    }else{
-        res.json({status:1,message:'获取失败'})
-    }
-});
+//用户点赞
+router.put('/support/:movie_id', movie_controller.movie_movieSupport)
 
-
-//点赞的电影
-//后续需要限制次数
-router.post('/support', function (req, res, next) {
-    let reqs = filter(req.body, function (prams) {
-        return sanitize(prams);
-      });
-    if(reqs.id) {
-        movie.findById(reqs.id, function (err, getMovie) {
-            movie.update({_id: reqs.id}, {movieNumSuppose: getMovie[0].movieNumSuppose+1}, function (err, movieUpdate) {
-                if (err) {
-                    res.json({status: 1, message: "点赞错误", data: err })
-                }
-                res.json({status: 0, message: '点赞成功', data: movieUpdate})
-            })
-        })
-    }else{
-        res.json({status:1,message:'获取失败'})
-    }
-});
-
-module.exports = router;
+module.exports = router
