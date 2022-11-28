@@ -670,7 +670,10 @@ exports.admin_uploadImg = [
                 file.on('end', (data) => writeStream.end())
                 // 监听finish完成事件
                 busboy.on('finish', () => {
-                    res.json({ status: 0, message: "文件上传成功" })
+                    res.json({
+                        status: 0,
+                        message: "文件上传成功"
+                    })
                     res.end()
                 })
             })
