@@ -259,22 +259,23 @@ exports.user_showEmail = [
                         })
                     }
                 })
+            } else {
+                Mail.find({
+                    toUser: req.auth.user_name
+                }).exec((err, find_mail) => {
+                    if (err) {
+                        returnErr(res, err, next, "请求失败!", 500)
+                        return;
+                    }
+                    if (find_mail) {
+                        res.json({
+                            status: 0,
+                            message: "获取成功!",
+                            find_mail: find_mail
+                        })
+                    }
+                })
             }
-            Mail.find({
-                toUser: req.auth.user_name
-            }).exec((err, find_mail) => {
-                if (err) {
-                    returnErr(res, err, next, "请求失败!", 500)
-                    return;
-                }
-                if (find_mail) {
-                    res.json({
-                        status: 0,
-                        message: "获取成功!",
-                        find_mail: find_mail
-                    })
-                }
-            })
         }
     }
 ]

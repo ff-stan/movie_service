@@ -184,21 +184,36 @@ exports.admin_upMovieData = [
 exports.admin_movieData = [
     (req, res, next) => {
         if (req.auth.userAdmin) {
-            Movie.find().exec((err, all_Data) => {
-                res.json({
-                    status: 0,
-                    message: "获取成功!",
-                    total: all_Data.length,
-                    rows: all_Data
+            // 支持分页 索引从0开始
+            if (req.query.pageNum && req.query.pageSize) {
+                const Num = req.query.pageNum
+                const Size = req.query.pageSize
+                Movie.find().sort({
+                    movieNumSuppose: -1
+                }).limit(Size).skip(Size * Num).exec((err, find_movie) => {
+                    if (err) { returnErr(res, err, next) }
+                    if (find_movie) {
+                        res.json({
+                            status: 0,
+                            messgae: "获取成功!",
+                            total: find_movie.length,
+                            data: find_movie
+                        })
+                    }
                 })
-            })
-        } else {
-            res.json({
-                status: 1,
-                message: "获取失败!"
-            })
+            } else {
+                Movie.find().exec((err, all_Data) => {
+                    res.json({
+                        status: 0,
+                        message: "获取成功!",
+                        total: all_Data.length,
+                        rows: all_Data
+                    })
+                })
+            }
         }
     }
+
 ]
 
 // 获取所有评论

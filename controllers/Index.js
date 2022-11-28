@@ -44,19 +44,20 @@ exports.index_indexRank = [
                     })
                 }
             })
+        } else {
+            Movie.find().sort({
+                movieNumSuppose: -1
+            }).exec((err, find_movie) => {
+                if (err) { returnErr(res, err, next, errMsg = "获取失败！") }
+                if (find_movie) {
+                    res.json({
+                        status: 0,
+                        total: find_movie.length,
+                        data: find_movie
+                    })
+                }
+            })
         }
-        Movie.find().sort({
-            movieNumSuppose: -1
-        }).exec((err, find_movie) => {
-            if (err) { returnErr(res, err, next, errMsg = "获取失败！") }
-            if (find_movie) {
-                res.json({
-                    status: 0,
-                    total: find_movie.length,
-                    data: find_movie
-                })
-            }
-        })
     }
 ]
 
@@ -78,18 +79,19 @@ exports.index_showArticle = [
                     })
                 }
             })
+        } else {
+            Article.find().exec((err, find_article) => {
+                if (err) { returnErr(res, err, next) }
+                if (find_article) {
+                    res.json({
+                        status: 0,
+                        messgae: "获取成功!",
+                        total: find_article.length,
+                        data: find_article
+                    })
+                }
+            })
         }
-        Article.find().exec((err, find_article) => {
-            if (err) { returnErr(res, err, next) }
-            if (find_article) {
-                res.json({
-                    status: 0,
-                    messgae: "获取成功!",
-                    total: find_article.length,
-                    data: find_article
-                })
-            }
-        })
     }
 ]
 

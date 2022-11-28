@@ -25,18 +25,19 @@ exports.movie_allMovieData = [
                         })
                     }
                 })
+        } else {
+            Movie.find().exec((err, find_movie) => {
+                if (err) { returnErr(res, err, next) }
+                if (find_movie) {
+                    res.json({
+                        status: 0,
+                        messgae: "获取成功!",
+                        total: find_movie.length,
+                        data: find_movie
+                    })
+                }
+            })
         }
-        Movie.find().exec((err, find_movie) => {
-            if (err) { returnErr(res, err, next) }
-            if (find_movie) {
-                res.json({
-                    status: 0,
-                    messgae: "获取成功!",
-                    total: find_movie.length,
-                    data: find_movie
-                })
-            }
-        })
     }
 ]
 
