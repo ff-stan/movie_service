@@ -114,6 +114,24 @@ exports.user_regiest = [
 
 ]
 
+// 获取用户信息
+exports.user_userInfo = [
+    (req, res, next) => {
+        if (req.auth) {
+            User.findById({
+                _id: req.auth.user_id
+            }).exec((err, find_user) => {
+                if (err) { returnErr(res, err, next) }
+                res.json({
+                    status: 0,
+                    messgae: "获取成功!",
+                    data: find_user
+                })
+            })
+        }
+    }
+]
+
 // 用户提交电影评论
 exports.user_comment = [
     // 清洗请求过来的数据
@@ -226,6 +244,22 @@ exports.user_showEmail = [
     (req, res, next) => {
         // 检查用户的token是否正确
         if (req.auth) {
+            // 支持分页 索引从0开始
+            if (req.query.pageNum && req.query.pageSize) {
+                const Num = req.query.pageNum
+                const Size = req.query.pageSize
+                Mail.find().limit(Size).skip(Size * Num).exec((err, find_mail) => {
+                    if (err) { returnErr(res, err, next) }
+                    if (find_mail) {
+                        res.json({
+                            status: 0,
+                            messgae: "获取成功!",
+                            total: find_mail.length,
+                            data: find_mail
+                        })
+                    }
+                })
+            }
             Mail.find({
                 toUser: req.auth.user_name
             }).exec((err, find_mail) => {

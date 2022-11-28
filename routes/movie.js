@@ -16,9 +16,6 @@ router.get('/details/:movie_id', movie_controller.movie_movieDetails)
 //获取相关电影的评论
 router.get('/comment/:movie_id', movie_controller.movie_movieComment)
 
-//获取主页电影推荐
-router.get('/recommend', movie_controller.movie_movieRecommend)
-
 //用户点赞
 router.put('/support/:movie_id', movie_controller.movie_movieSupport)
 

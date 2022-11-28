@@ -40,7 +40,8 @@ app.use(
     path: ['/users/login',
       '/users/register',
       '/admin/adminLogin',
-      /^\/movie\/.*/
+      /^\/movie\/.*/,
+      /^\/index\/.*/
     ],
   })
 )
@@ -61,7 +62,7 @@ app.use(cookieParser())
 app.use("/static", express.static(path.join(__dirname, 'public')))
 
 // 设置路由路径
-app.use('/', indexRouter)
+app.use('/index', indexRouter)
 app.use('/users', usersRouter)
 app.use('/admin', adminRouter)
 app.use('/movie', movieRouter)
