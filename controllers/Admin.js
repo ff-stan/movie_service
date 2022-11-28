@@ -12,6 +12,9 @@ const secretKey = 'Amadeus'
 const { body, check, checkSchema } = require('express-validator')
 const { checkError, returnErr } = require('../utils/utils')
 
+// 上传文件中间件
+const Busboy = require('busboy')
+const fs = require('fs')
 
 // 管理员登录
 exports.admin_adminLogin = [
@@ -102,7 +105,6 @@ exports.admin_addMovieData = [
         }
     }
 ]
-
 // 删除电影项目
 exports.admin_delMovieData = [
     checkSchema({
@@ -130,7 +132,6 @@ exports.admin_delMovieData = [
         }
     }
 ]
-
 // 更新电影项目内容
 exports.admin_upMovieData = [
     checkSchema({
@@ -179,7 +180,6 @@ exports.admin_upMovieData = [
         }
     }
 ]
-
 // 获取所有电影数据
 exports.admin_movieData = [
     (req, res, next) => {
@@ -219,7 +219,6 @@ exports.admin_movieAllComment = [
         }
     }
 ]
-
 // 审核评论
 exports.admin_movieCheckComment = [
     checkSchema({
@@ -256,7 +255,6 @@ exports.admin_movieCheckComment = [
         }
     }
 ]
-
 // 删除评论
 exports.admin_movieDelComment = [
     checkSchema({
@@ -321,7 +319,6 @@ exports.admin_userAddStop = [
         }
     }
 ]
-
 // 解封用户
 exports.admin_userDelStop = [
     checkSchema({
@@ -358,7 +355,6 @@ exports.admin_userDelStop = [
         }
     }
 ]
-
 // 更新用户密码
 exports.admin_changeUserPwd = [
     body("user_id").trim().notEmpty().withMessage("用户id传递错误!"),
@@ -390,7 +386,6 @@ exports.admin_changeUserPwd = [
         }
     }
 ]
-
 // 获取所有用户信息
 exports.admin_userList = [
     (req, res, next) => {
@@ -409,7 +404,6 @@ exports.admin_userList = [
         }
     }
 ]
-
 // 升级成为管理员用户
 exports.admin_addAdmin = [
     checkSchema({
@@ -446,7 +440,6 @@ exports.admin_addAdmin = [
         }
     }
 ]
-
 // 降级成为普通用户
 exports.admin_delAdmin = [
     checkSchema({
@@ -516,7 +509,6 @@ exports.admin_addArticle = [
         }
     }
 ]
-
 // 更新文章
 exports.admin_updataArticle = [
     checkSchema({
@@ -553,7 +545,6 @@ exports.admin_updataArticle = [
         }
     }
 ]
-
 // 删除文章
 exports.admin_delArticle = [
     checkSchema({
@@ -618,7 +609,6 @@ exports.admin_addRecommend = [
         }
     }
 ]
-
 // 删除主页推荐
 exports.admin_delRecommend = [
     checkSchema({
@@ -650,6 +640,38 @@ exports.admin_delRecommend = [
                     status: 0,
                     messgae: "取消推荐成功",
                     data: updata_movie
+                })
+            })
+        }
+    }
+]
+
+// 上传图片接口
+exports.admin_uploadImg = [
+    (req, res, next) => {
+        if (req.auth) {
+            //通过请求头信息创建busboy对象
+            let busboy = Busboy({
+                headers: req.headers,
+                limits: {
+                    // 最大大小 10mb
+                    fileSize: 1048576 * 10
+                }
+            })
+            //将流链接到busboy对象
+            req.pipe(busboy)
+            //监听file事件获取文件(字段名，文件，文件名，传输编码，mime类型)
+            busboy.on('file', (filedname, file, filename, encoding, mimetype) => {
+                //创建一个可写流
+                let writeStream = fs.createWriteStream('./public/upload/' + filename.filename)
+                //监听data事件，文件数据接受完毕，关闭这个可写域
+                file.on('data', (data) => writeStream.write(data))
+                // 监听end事件，文件数据接收完毕，关闭这个可写流
+                file.on('end', (data) => writeStream.end())
+                // 监听finish完成事件
+                busboy.on('finish', () => {
+                    res.json({ status: 0, message: "文件上传成功" })
+                    res.end()
                 })
             })
         }

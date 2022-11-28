@@ -40,6 +40,7 @@ app.use(
     path: ['/users/login',
       '/users/register',
       '/admin/adminLogin',
+      '/admin/upload',
       /^\/movie\/.*/,
       /^\/index\/.*/
     ],
@@ -70,7 +71,7 @@ app.use('/movie', movieRouter)
 
 // 返回404
 app.use(function (req, res, next) {
-  next(createError(404));
+  next(createError(404))
 })
 // token错误信息处理 
 app.use((err, req, res, next) => {
