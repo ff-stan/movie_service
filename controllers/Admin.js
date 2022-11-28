@@ -2,6 +2,8 @@ const User = require('../models/user')
 const Movie = require('../models/movie')
 const Comment = require('../models/comment')
 const Mail = require('../models/mail')
+const Article = require('../models/article')
+const Recommend = require('../models/recommend')
 
 const jwt = require("jsonwebtoken")
 // 秘钥
@@ -9,6 +11,7 @@ const secretKey = 'Amadeus'
 
 const { body, check, checkSchema } = require('express-validator')
 const { checkError, returnErr } = require('../utils/utils')
+
 
 // 管理员登录
 exports.admin_adminLogin = [
@@ -193,6 +196,461 @@ exports.admin_movieData = [
             res.json({
                 status: 1,
                 message: "获取失败!"
+            })
+        }
+    }
+]
+
+// 获取所有评论
+exports.admin_movieAllComment = [
+    (req, res, next) => {
+        if (req.auth.userAdmin) {
+            Comment.find().exec((err, find_comment) => {
+                if (err) { returnErr(res, err, next, errStatus = 500) }
+                if (find_comment) {
+                    res.json({
+                        status: 0,
+                        message: "获取成功!",
+                        total: find_comment.length,
+                        rows: find_comment
+                    })
+                }
+            })
+        }
+    }
+]
+
+// 审核评论
+exports.admin_movieCheckComment = [
+    checkSchema({
+        comment_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "评论id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Comment.findByIdAndUpdate(
+                {
+                    _id: req.params.comment_id
+                },
+                {
+                    $set: {
+                        check: true
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_comment) => {
+                if (err) { returnErr(res, err, next, errMsg = "审核失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "审核成功!",
+                    data: updata_comment
+                })
+            })
+        }
+    }
+]
+
+// 删除评论
+exports.admin_movieDelComment = [
+    checkSchema({
+        comment_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "评论id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Comment.findByIdAndRemove(
+                {
+                    _id: req.params.comment_id
+                }
+            ).exec((err) => {
+                if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "删除成功!"
+                })
+            })
+        }
+    }
+]
+
+// 封停用户
+exports.admin_userAddStop = [
+    checkSchema({
+        user_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "用户id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            User.findByIdAndUpdate(
+                {
+                    _id: req.params.user_id
+                },
+                {
+                    $set: {
+                        userStop: true
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_user) => {
+                if (err) { returnErr(res, err, next, errMsg = "封停失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "封停成功",
+                    data: updata_user
+                })
+            })
+        }
+    }
+]
+
+// 解封用户
+exports.admin_userDelStop = [
+    checkSchema({
+        user_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "用户id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            User.findByIdAndUpdate(
+                {
+                    _id: req.params.user_id
+                },
+                {
+                    $set: {
+                        userStop: false
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_user) => {
+                if (err) { returnErr(res, err, next, errMsg = "解封失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "解封成功",
+                    data: updata_user
+                })
+            })
+        }
+    }
+]
+
+// 更新用户密码
+exports.admin_changeUserPwd = [
+    body("user_id").trim().notEmpty().withMessage("用户id传递错误!"),
+    body("password").trim().notEmpty().withMessage("新密码为空!")
+        .isLength({ min: 8, max: 30 }).withMessage("密码长度不符合要求!"),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            User.findByIdAndUpdate(
+                {
+                    _id: req.body.user_id
+                },
+                {
+                    $set: {
+                        password: req.body.password
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_user) => {
+                if (err) { returnErr(res, err, next, errMsg = "更改失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "更改成功",
+                    data: updata_user
+                })
+            })
+        }
+    }
+]
+
+// 获取所有用户信息
+exports.admin_userList = [
+    (req, res, next) => {
+        if (req.auth.userAdmin) {
+            User.find().exec((err, find_user) => {
+                if (err) { returnErr(res, err, next, errMsg = "获取失败!", errStatus = 500) }
+                if (find_user) {
+                    res.json({
+                        status: 0,
+                        message: "获取成功!",
+                        total: find_user.length,
+                        rows: find_user
+                    })
+                }
+            })
+        }
+    }
+]
+
+// 升级成为管理员用户
+exports.admin_addAdmin = [
+    checkSchema({
+        user_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "用户id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            User.findByIdAndUpdate(
+                {
+                    _id: req.params.user_id
+                },
+                {
+                    $set: {
+                        userAdmin: true
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_user) => {
+                if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "修改成功",
+                    data: updata_user
+                })
+            })
+        }
+    }
+]
+
+// 降级成为普通用户
+exports.admin_delAdmin = [
+    checkSchema({
+        user_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "用户id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            User.findByIdAndUpdate(
+                {
+                    _id: req.params.user_id
+                },
+                {
+                    $set: {
+                        userAdmin: false
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_user) => {
+                if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "修改成功",
+                    data: updata_user
+                })
+            })
+        }
+    }
+]
+
+// 新增文章
+exports.admin_addArticle = [
+    checkSchema({
+        articleTitle: {
+            trim: true,
+            notEmpty: true,
+            errorMessage: "文章标题为空!"
+        },
+        articleContext: {
+            trim: true,
+            notEmpty: true,
+            errorMessage: "文章内容为空!"
+        }
+    }),
+    (req, res, next) => {
+        if (req.auth.userAdmin) {
+            const article = new Article({
+                articleTitle: req.body.articleTitle,
+                articleContext: req.body.articleContext,
+                articleAuthor: req.auth.user_name
+            })
+            article.save((err, new_article) => {
+                if (err) { returnErr(res, err, next, errMsg = "添加失败!", errStatus = 500) }
+                res.status(201).json({
+                    status: 0,
+                    message: "添加成功!",
+                    data: new_article
+                })
+            })
+        }
+    }
+]
+
+// 更新文章
+exports.admin_updataArticle = [
+    checkSchema({
+        article_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "文章id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Article.findByIdAndUpdate(
+                {
+                    _id: req.params.article_id
+                },
+                {
+                    $set: {
+                        articleTitle: req.body.articleTitle,
+                        articleContext: req.body.articleContext
+                    }
+                },
+                {
+                    new: true
+                }).exec((err, updata_article) => {
+                    if (err) { returnErr(res, err, next, errMsg = "添加失败!", errStatus = 500) }
+                    res.json({
+                        status: 0,
+                        message: "更新成功!",
+                        data: updata_article
+                    })
+                })
+        }
+    }
+]
+
+// 删除文章
+exports.admin_delArticle = [
+    checkSchema({
+        article_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "文章id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Article.findByIdAndRemove(
+                {
+                    _id: req.params.article_id
+                }
+            ).exec((err) => {
+                if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "删除成功!"
+                })
+            })
+        }
+    }
+]
+
+// 新增主页推荐
+exports.admin_addRecommend = [
+    checkSchema({
+        movie_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "电影id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Movie.findByIdAndUpdate(
+                {
+                    _id: req.params.movie_id
+                },
+                {
+                    $set: {
+                        movieMainPage: true
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_movie) => {
+                if (err) { returnErr(res, err, next, errMsg = "推荐失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "推荐成功",
+                    data: updata_movie
+                })
+            })
+        }
+    }
+]
+
+// 删除主页推荐
+exports.admin_delRecommend = [
+    checkSchema({
+        movie_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "电影id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Movie.findByIdAndUpdate(
+                {
+                    _id: req.params.movie_id
+                },
+                {
+                    $set: {
+                        movieMainPage: false
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_movie) => {
+                if (err) { returnErr(res, err, next, errMsg = "取消推荐失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    messgae: "取消推荐成功",
+                    data: updata_movie
+                })
             })
         }
     }

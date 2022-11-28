@@ -15,27 +15,6 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-//Mongoose测试
-// router.get('/mongooseTest',function(req,res, next){
-//   mongoose.connect('mongodb://127.0.0.1:27017/pets');
-//   var CatSchema = mongoose.Schema({
-//     name:String
-//   });
-//   var Cat = mongoose.model('Cat',CatSchema);
-
-//   //查询
-//   Cat.find({name:'tom'},function(err,doc){
-//     if(err){
-//       console.log(err);
-//       return;
-//     }else{
-//       console.log(doc);
-//     }
-//   });
-//   //使用res.send()方法来输入一个提示
-//   res.send('数据库连接测试');
-// });
-
 //显示主页的推荐大图等
 router.get('/showIndex', function (req, res, next) {
   recommend.findAll(function (err, getRecommend) {
