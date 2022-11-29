@@ -10,6 +10,9 @@ router.post('/login', user_controller.user_login)
 //用户注册接口
 router.post('/register',user_controller.user_regiest)
 
+// 获取用户信息
+router.get('/userInfo',user_controller.user_userInfo)
+
 //用户提交评论
 router.post('/movieComment',user_controller.user_comment)
 

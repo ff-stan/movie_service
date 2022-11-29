@@ -10,6 +10,11 @@ const jwt = require("jsonwebtoken")
 const { expressjwt } = require("express-jwt")
 const secretKey = 'Amadeus'
 
+// 压缩发送回客户端的 HTTP 响应的中间件
+const compression = require('compression')
+// 可以设置适当的 HTTP 标头中间件 避免一些web漏洞
+const helmet = require('helmet')
+
 const indexRouter = require('./routes/index')
 const usersRouter = require('./routes/users')
 const adminRouter = require('./routes/admin')
@@ -30,6 +35,11 @@ const app = express()
 // 		next();
 // });
 
+// 添加压缩发送回客户端的 HTTP 响应的中间件
+app.use(compression())
+// 添加设置适当的 HTTP 标头中间件
+app.use(helmet())
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -40,7 +50,9 @@ app.use(
     path: ['/users/login',
       '/users/register',
       '/admin/adminLogin',
-      /^\/movie\/.*/
+      '/admin/upload',
+      /^\/movie\/.*/,
+      /^\/index\/.*/
     ],
   })
 )
@@ -61,7 +73,7 @@ app.use(cookieParser())
 app.use("/static", express.static(path.join(__dirname, 'public')))
 
 // 设置路由路径
-app.use('/', indexRouter)
+app.use('/index', indexRouter)
 app.use('/users', usersRouter)
 app.use('/admin', adminRouter)
 app.use('/movie', movieRouter)
@@ -69,7 +81,7 @@ app.use('/movie', movieRouter)
 
 // 返回404
 app.use(function (req, res, next) {
-  next(createError(404));
+  next(createError(404))
 })
 // token错误信息处理 
 app.use((err, req, res, next) => {

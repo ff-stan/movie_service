@@ -6,20 +6,38 @@ const Recommend = require('../models/recommend')
 const { body, check, checkSchema } = require('express-validator')
 const { checkError, returnErr } = require('../utils/utils')
 
-// 获取所有电影列表 后续要支持分页
+// 获取所有电影列表
 exports.movie_allMovieData = [
     (req, res, next) => {
-        Movie.find().exec((err, find_movie) => {
-            if (err) { returnErr(res, err, next) }
-            if (find_movie) {
-                res.json({
-                    status: 0,
-                    messgae: "获取成功!",
-                    total: find_movie.length,
-                    data: find_movie
+        // 支持分页 索引从0开始
+        if (req.query.pageNum && req.query.pageSize) {
+            const Num = req.query.pageNum
+            const Size = req.query.pageSize
+            Movie.find().limit(Size).skip(Size * Num)
+                .exec((err, find_movie) => {
+                    if (err) { returnErr(res, err, next) }
+                    if (find_movie) {
+                        res.json({
+                            status: 0,
+                            messgae: "获取成功!",
+                            total: find_movie.length,
+                            data: find_movie
+                        })
+                    }
                 })
-            }
-        })
+        } else {
+            Movie.find().exec((err, find_movie) => {
+                if (err) { returnErr(res, err, next) }
+                if (find_movie) {
+                    res.json({
+                        status: 0,
+                        messgae: "获取成功!",
+                        total: find_movie.length,
+                        data: find_movie
+                    })
+                }
+            })
+        }
     }
 ]
 
@@ -112,22 +130,6 @@ exports.movie_movieComment = [
                     status: 0,
                     message: "获取成功!",
                     data: find_comment
-                })
-            }
-        })
-    }
-]
-
-// 获取主页电影推荐 支持分页或随机返回
-exports.movie_movieRecommend = [
-    (req, res, next) => {
-        Recommend.find((err, find_recommend) => {
-            if (err) { returnErr(res, err, next, errMsg = "获取失败！") }
-            if (find_recommend) {
-                res.json({
-                    status: 0,
-                    total: find_recommend.length,
-                    data: find_recommend
                 })
             }
         })
