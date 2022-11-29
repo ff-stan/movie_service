@@ -35,10 +35,10 @@ const app = express()
 // 		next();
 // });
 
-// 添加设置适当的 HTTP 标头中间件
-app.use(helmet())
 // 添加压缩发送回客户端的 HTTP 响应的中间件
 app.use(compression())
+// 添加设置适当的 HTTP 标头中间件
+app.use(helmet())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

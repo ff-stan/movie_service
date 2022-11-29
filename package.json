@@ -1,10 +1,11 @@
 {
-  "name": "book-service",
-  "version": "0.0.0",
+  "name": "movie-service",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "go": "supervisor bin/www",
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "prd" : "cross-env NODE_ENV=production pm2 start ./bin/www"
   },
   "dependencies": {
     "async": "^3.2.4",
