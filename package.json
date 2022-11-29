@@ -5,7 +5,7 @@
   "scripts": {
     "go": "supervisor bin/www",
     "start": "node ./bin/www",
-    "prd" : "cross-env NODE_ENV=production pm2 start ./bin/www"
+    "prd": "NODE_ENV=production pm2 start pm2.conf.json"
   },
   "dependencies": {
     "async": "^3.2.4",
@@ -25,7 +25,8 @@
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^6.5.2",
     "morgan": "~1.9.1",
-    "pug": "^3.0.2"
+    "pug": "^3.0.2",
+    "supervisor": "^0.12.0"
   },
   "description": "movieProject的API服务端",
   "main": "app.js",
