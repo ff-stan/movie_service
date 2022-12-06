@@ -46,10 +46,10 @@ app.use(
 // 设置静态文件路径
 let options = {
   setHeaders: function (res, path, stat) {
-    res.set('Access-Control-Allow-Origin', '*')
+    res.set('Cross-Origin-Resource-Policy',"cross-origin")
   }
 }
-app.use(express.static(path.join(__dirname, 'public'),options));
+app.use("/static",express.static(path.join(__dirname, 'public'),options));
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -62,7 +62,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 // 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
-app.use("/static", express.static(path.join(__dirname, 'public')))
+//app.use("/static", express.static(path.join(__dirname, 'public')))
 
 // 设置路由路径
 app.use('/index', indexRouter)
