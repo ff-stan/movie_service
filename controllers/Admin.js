@@ -664,8 +664,7 @@ exports.admin_delRecommend = [
 // 上传图片接口
 exports.admin_uploadImg = [
     (req, res, next) => {
-        // 这里很奇怪 明明请求头有携带token 却没有自动解析
-        // if (req.auth) {
+        if (req.auth) {
             //通过请求头信息创建busboy对象
             let busboy = Busboy({
                 headers: req.headers,
@@ -694,11 +693,11 @@ exports.admin_uploadImg = [
                     res.end()
                 })
             })
-        // }else{
-        //     res.status(401).json({
-        //         errno : 1,
-        //         message : "身份验证出错!"
-        //     })
-        // }
+        }else{
+            res.status(401).json({
+                errno : 1,
+                message : "身份验证出错!"
+            })
+        }
     }
 ]

@@ -50,9 +50,9 @@ app.use(
     path: ['/users/login',
       '/users/register',
       '/admin/adminLogin',
-      '/admin/upload',
       /^\/movie\/.*/,
-      /^\/index\/.*/
+      /^\/index\/.*/,
+      /^\/static\/.*/,
     ],
   })
 )
