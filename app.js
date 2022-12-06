@@ -22,17 +22,18 @@ const movieRouter = require('./routes/movie')
 
 const app = express()
 // express允许跨域
-// app.all("*", function (req, res, next) {
+//app.all("*", function (req, res, next) {
 // 	//设置允许跨域的域名，*代表允许任意域名跨域
 // 	res.header("Access-Control-Allow-Origin", "*");
 // 	//允许的header类型
 // 	res.header("Access-Control-Allow-Headers", "content-type");
 // 	//跨域允许的请求方式 
 // 	res.header("Access-Control-Allow-Methods", "DELETE,PUT,POST,GET,OPTIONS");
-// 	if (req.method == 'OPTIONS')
-// 		res.sendStatus(200); //让options尝试请求快速结束
-// 	else
-// 		next();
+ //	if (req.method == 'OPTIONS'){
+ //		res.sendStatus(200); //让options尝试请求快速结束
+//	}else{
+ //		next();
+//	}
 // });
 
 // 添加压缩发送回客户端的 HTTP 响应的中间件
@@ -71,15 +72,12 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 // 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
 app.use("/static", express.static(path.join(__dirname, 'public')))
-
 // 设置路由路径
 app.use('/index', indexRouter)
 app.use('/users', usersRouter)
 app.use('/admin', adminRouter)
 app.use('/movie', movieRouter)
 
-
-// 返回404
 app.use(function (req, res, next) {
   next(createError(404))
 })
