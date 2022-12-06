@@ -664,7 +664,8 @@ exports.admin_delRecommend = [
 // 上传图片接口
 exports.admin_uploadImg = [
     (req, res, next) => {
-        if (req.auth) {
+        // 这里很奇怪 明明请求头有携带token 却没有自动解析
+        // if (req.auth) {
             //通过请求头信息创建busboy对象
             let busboy = Busboy({
                 headers: req.headers,
@@ -688,11 +689,16 @@ exports.admin_uploadImg = [
                     res.json({
                         status: 0,
                         message: "文件上传成功",
-                        url : `http://amdeus.top:3000/static/upload/${filename}`
+                        url : `http://amdeus.top:3000/static/upload/${filename.filename}`
                     })
                     res.end()
                 })
             })
-        }
+        // }else{
+        //     res.status(401).json({
+        //         errno : 1,
+        //         message : "身份验证出错!"
+        //     })
+        // }
     }
 ]
