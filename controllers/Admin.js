@@ -53,12 +53,12 @@ exports.admin_adminLogin = [
                         userAdmin: find_user.userAdmin
                     }, secretKey, { expiresIn: '24h' })
                     res.json({
-                        messgae: "登录成功!",
+                        message: "登录成功!",
                         token: token
                     })
                 } else {
                     res.status(401).json({
-                        messgae: "登录失败!用户名或密码错误!"
+                        message: "登录失败!用户名或密码错误!"
                     })
                 }
             })
@@ -687,7 +687,8 @@ exports.admin_uploadImg = [
                 busboy.on('finish', () => {
                     res.json({
                         status: 0,
-                        message: "文件上传成功"
+                        message: "文件上传成功",
+                        url : `http://amdeus.top:3000/static/upload/${filename}`
                     })
                     res.end()
                 })
