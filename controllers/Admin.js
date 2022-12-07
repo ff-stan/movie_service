@@ -53,12 +53,12 @@ exports.admin_adminLogin = [
                         userAdmin: find_user.userAdmin
                     }, secretKey, { expiresIn: '24h' })
                     res.json({
-                        messgae: "登录成功!",
+                        message: "登录成功!",
                         token: token
                     })
                 } else {
                     res.status(401).json({
-                        messgae: "登录失败!用户名或密码错误!"
+                        message: "登录失败!用户名或密码错误!"
                     })
                 }
             })
@@ -195,7 +195,7 @@ exports.admin_movieData = [
                     if (find_movie) {
                         res.json({
                             status: 0,
-                            messgae: "获取成功!",
+                            message: "获取成功!",
                             total: find_movie.length,
                             data: find_movie
                         })
@@ -263,7 +263,7 @@ exports.admin_movieCheckComment = [
                 if (err) { returnErr(res, err, next, errMsg = "审核失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "审核成功!",
+                    message: "审核成功!",
                     data: updata_comment
                 })
             })
@@ -291,7 +291,7 @@ exports.admin_movieDelComment = [
                 if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "删除成功!"
+                    message: "删除成功!"
                 })
             })
         }
@@ -327,7 +327,7 @@ exports.admin_userAddStop = [
                 if (err) { returnErr(res, err, next, errMsg = "封停失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "封停成功",
+                    message: "封停成功",
                     data: updata_user
                 })
             })
@@ -363,7 +363,7 @@ exports.admin_userDelStop = [
                 if (err) { returnErr(res, err, next, errMsg = "解封失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "解封成功",
+                    message: "解封成功",
                     data: updata_user
                 })
             })
@@ -394,7 +394,7 @@ exports.admin_changeUserPwd = [
                 if (err) { returnErr(res, err, next, errMsg = "更改失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "更改成功",
+                    message: "更改成功",
                     data: updata_user
                 })
             })
@@ -448,7 +448,7 @@ exports.admin_addAdmin = [
                 if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "修改成功",
+                    message: "修改成功",
                     data: updata_user
                 })
             })
@@ -484,7 +484,7 @@ exports.admin_delAdmin = [
                 if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "修改成功",
+                    message: "修改成功",
                     data: updata_user
                 })
             })
@@ -581,7 +581,7 @@ exports.admin_delArticle = [
                 if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "删除成功!"
+                    message: "删除成功!"
                 })
             })
         }
@@ -617,7 +617,7 @@ exports.admin_addRecommend = [
                 if (err) { returnErr(res, err, next, errMsg = "推荐失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "推荐成功",
+                    message: "推荐成功",
                     data: updata_movie
                 })
             })
@@ -653,7 +653,7 @@ exports.admin_delRecommend = [
                 if (err) { returnErr(res, err, next, errMsg = "取消推荐失败!", errStatus = 500) }
                 res.json({
                     status: 0,
-                    messgae: "取消推荐成功",
+                    message: "取消推荐成功",
                     data: updata_movie
                 })
             })
@@ -687,10 +687,16 @@ exports.admin_uploadImg = [
                 busboy.on('finish', () => {
                     res.json({
                         status: 0,
-                        message: "文件上传成功"
+                        message: "文件上传成功",
+                        url : `http://amdeus.top:3000/static/upload/${filename.filename}`
                     })
                     res.end()
                 })
+            })
+        }else{
+            res.status(401).json({
+                errno : 1,
+                message : "身份验证出错!"
             })
         }
     }

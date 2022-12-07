@@ -21,19 +21,6 @@ const adminRouter = require('./routes/admin')
 const movieRouter = require('./routes/movie')
 
 const app = express()
-// express允许跨域
-// app.all("*", function (req, res, next) {
-// 	//设置允许跨域的域名，*代表允许任意域名跨域
-// 	res.header("Access-Control-Allow-Origin", "*");
-// 	//允许的header类型
-// 	res.header("Access-Control-Allow-Headers", "content-type");
-// 	//跨域允许的请求方式 
-// 	res.header("Access-Control-Allow-Methods", "DELETE,PUT,POST,GET,OPTIONS");
-// 	if (req.method == 'OPTIONS')
-// 		res.sendStatus(200); //让options尝试请求快速结束
-// 	else
-// 		next();
-// });
 
 // 添加压缩发送回客户端的 HTTP 响应的中间件
 app.use(compression())
@@ -41,8 +28,8 @@ app.use(compression())
 app.use(helmet())
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+// app.set('views', path.join(__dirname, 'views'));
+// app.set('view engine', 'pug');
 
 // 只要配置成功 express-jwt 就可以把解析出来的用户信息 挂载到req.auth属性上
 app.use(
@@ -50,14 +37,19 @@ app.use(
     path: ['/users/login',
       '/users/register',
       '/admin/adminLogin',
-      '/admin/upload',
       /^\/movie\/.*/,
-      /^\/index\/.*/
+      /^\/index\/.*/,
+      /^\/static\/.*/,
     ],
   })
 )
 // 设置静态文件路径
-app.use(express.static(__dirname + '/public'))
+let options = {
+  setHeaders: function (res, path, stat) {
+    res.set('Cross-Origin-Resource-Policy',"cross-origin")
+  }
+}
+app.use("/static",express.static(path.join(__dirname, 'public'),options));
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -70,7 +62,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 // 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
-app.use("/static", express.static(path.join(__dirname, 'public')))
+//app.use("/static", express.static(path.join(__dirname, 'public')))
 
 // 设置路由路径
 app.use('/index', indexRouter)
