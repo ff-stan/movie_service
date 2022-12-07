@@ -43,13 +43,6 @@ app.use(
     ],
   })
 )
-// 设置静态文件路径
-let options = {
-  setHeaders: function (res, path, stat) {
-    res.set('Cross-Origin-Resource-Policy',"cross-origin")
-  }
-}
-app.use("/static",express.static(path.join(__dirname, 'public'),options));
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
@@ -61,8 +54,7 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-// 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
-//app.use("/static", express.static(path.join(__dirname, 'public')))
+
 
 // 设置路由路径
 app.use('/index', indexRouter)
@@ -70,6 +62,13 @@ app.use('/users', usersRouter)
 app.use('/admin', adminRouter)
 app.use('/movie', movieRouter)
 
+// 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
+let options = {
+  setHeaders: function (res, path, stat) {
+    res.set('Cross-Origin-Resource-Policy',"cross-origin")
+  }
+}
+app.use("/static",express.static(path.join(__dirname, 'public'),options))
 
 // 返回404
 app.use(function (req, res, next) {

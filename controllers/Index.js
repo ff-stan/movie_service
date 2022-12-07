@@ -11,7 +11,9 @@ const { checkError, returnErr } = require('../utils/utils')
 // 获取主页电影推荐 
 exports.index_indexRecommend = [
     (req, res, next) => {
-        Recommend.find((err, find_recommend) => {
+        Movie.find({
+            movieMainPage : true
+        },(err, find_recommend) => {
             if (err) { returnErr(res, err, next, errMsg = "获取失败！") }
             if (find_recommend) {
                 res.json({
