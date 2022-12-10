@@ -5,6 +5,7 @@ var comment = new mongoose.Schema({
     movie_id:String,
     username:String,
     context:String,
+    commentNumSuppose : Number,
     check:Boolean
 });
 

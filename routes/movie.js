@@ -16,7 +16,10 @@ router.get('/details/:movie_id', movie_controller.movie_movieDetails)
 //获取相关电影的评论
 router.get('/comment/:movie_id', movie_controller.movie_movieComment)
 
-//用户点赞
-router.put('/support/:movie_id', movie_controller.movie_movieSupport)
+//用户点赞电影
+router.put('/movie/support/:movie_id', movie_controller.movie_movieSupport)
+
+//用户点赞评论
+router.put('/comment/support/:comment_id', movie_controller.movie_commentSupport)
 
 module.exports = router

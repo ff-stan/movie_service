@@ -143,6 +143,7 @@ exports.user_comment = [
             username: req.auth.user_name || "匿名用户",
             movie_id: req.body.movie_id,
             context: req.body.context,
+            commentNumSuppose : 0,
             check: 0
         })
         // 当验证出现错误时返回错误信息集

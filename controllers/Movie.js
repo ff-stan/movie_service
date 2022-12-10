@@ -136,7 +136,7 @@ exports.movie_movieComment = [
     }
 ]
 
-// 用户点赞(暂不设限)
+// 用户点赞电影(暂不设限)
 exports.movie_movieSupport = [
     // 验证在路由中的参数
     checkSchema({
@@ -170,6 +170,47 @@ exports.movie_movieSupport = [
                         status: 0,
                         message: "点赞成功!",
                         movieNumSuppose: find_movie.movieNumSuppose,
+                    })
+                }
+            })
+    }
+
+]
+
+// 用户点赞评论(暂不设限)
+exports.movie_commentSupport = [
+    // 验证在路由中的参数
+    checkSchema({
+        comment_id: {
+            in: ['params', 'query'],
+            errorMessage: '评论id传递错误',
+            trim: true,
+            isEmpty: false
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        Comment.findOneAndUpdate(
+            {
+                _id: req.params.comment_id
+            },
+            {
+                // 更新点赞数
+                $inc: {
+                    commentNumSuppose: 1
+                }
+            },
+            {
+                // 每一次返回更新后的数据
+                new: true
+            })
+            .exec((err, find_comment) => {
+                if (err) { returnErr(res, err, next, errMsg = "点赞失败！", errStatus = 500) }
+                if (find_comment) {
+                    res.json({
+                        status: 0,
+                        message: "点赞成功!",
+                        commentNumSuppose: find_comment.commentNumSuppose,
                     })
                 }
             })
