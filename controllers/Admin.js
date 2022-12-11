@@ -216,11 +216,13 @@ exports.admin_movieData = [
 
 ]
 
-// 获取所有评论
+// 获取所有已审核评论
 exports.admin_movieAllComment = [
     (req, res, next) => {
         if (req.auth.userAdmin) {
-            Comment.find().exec((err, find_comment) => {
+            Comment.find({
+                check : req.params.checkType
+            }).exec((err, find_comment) => {
                 if (err) { returnErr(res, err, next, errStatus = 500) }
                 if (find_comment) {
                     res.json({
