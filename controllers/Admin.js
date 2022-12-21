@@ -33,10 +33,7 @@ exports.admin_adminLogin = [
         })
     }).withMessage("用户已被封停"),
     body("password").trim().notEmpty().withMessage("密码为空!"),
-    (req, res, next) => {
-        if (checkError(req, res)) {
-
-        } else {
+    (req, res, next) => {checkError(req, res)
             User.findOne({
                 username: req.body.userName,
                 password: req.body.password,
@@ -63,8 +60,6 @@ exports.admin_adminLogin = [
                 }
             })
         }
-
-    }
 ]
 
 // 添加电影项目

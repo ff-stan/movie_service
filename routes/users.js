@@ -24,5 +24,6 @@ router.post('/sendEmail', user_controller.user_sendEmail)
 
 //用户显示站内信 
 router.get('/showEmail',user_controller.user_showEmail)
-
+//用户阅读站内信 
+router.get('/readEmail/:mail_id',user_controller.user_readEmail)
 module.exports = router

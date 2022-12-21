@@ -143,7 +143,7 @@ exports.user_comment = [
             username: req.auth.user_name || "匿名用户",
             movie_id: req.body.movie_id,
             context: req.body.context,
-            commentNumSuppose : 0,
+            commentNumSuppose: 0,
             check: 0
         })
         // 当验证出现错误时返回错误信息集
@@ -223,7 +223,8 @@ exports.user_sendEmail = [
                 fromUser: req.auth.user_name || "匿名用户",
                 toUser: req.body.toUserName,
                 title: req.body.title,
-                context: req.body.context
+                context: req.body.context,
+                isRead : false
             })
             mail.save((err) => {
                 if (err) {
@@ -277,6 +278,48 @@ exports.user_showEmail = [
                     }
                 })
             }
+        }
+    }
+]
+
+// 用户已读邮件
+exports.user_readEmail = [
+    checkSchema({
+        mail_id: {
+            in: ['params', 'query'],
+            errorMessage: '站内信id传递错误',
+            trim: true,
+            isEmpty: false
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        // 检查用户的token是否正确
+        if (req.auth) {
+            Mail.findByIdAndUpdate(
+                {
+                    _id: req.params.mail_id
+                }, {
+                $set: {
+                    isRead: true
+                }
+            },
+                {
+                    new: true
+                }
+            ).exec((err, find_mail) => {
+                if (err) {
+                    returnErr(res, err, next, "请求失败!", 500)
+                    return;
+                }
+                if (find_mail) {
+                    res.json({
+                        status: 0,
+                        message: "已读!",
+                        find_mail: find_mail
+                    })
+                }
+            })
         }
     }
 ]
