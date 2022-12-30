@@ -62,7 +62,7 @@ app.use('/users', usersRouter)
 app.use('/admin', adminRouter)
 app.use('/movie', movieRouter)
 
-// 设置静态文件路径 可以用http://localhost:3000/static/images/xxx.jpg 访问到public下的文件夹
+// 设置静态文件路径 可以用http://localhost:3000/static/images/5.jpg 访问到public下的文件夹
 let options = {
   setHeaders: function (res, path, stat) {
     res.set('Cross-Origin-Resource-Policy',"cross-origin")
@@ -86,6 +86,7 @@ app.use((err, req, res, next) => {
   console.log(err)
   res.status(500).send({
     status: 500,
+	err : err,
     message: '未知的错误',
   })
 })

@@ -4,6 +4,7 @@ const Comment = require('../models/comment')
 const Mail = require('../models/mail')
 const Article = require('../models/article')
 const Recommend = require('../models/recommend')
+const Evaluate = require('../models/movieEvaluate')
 
 const jwt = require("jsonwebtoken")
 // 秘钥
@@ -652,6 +653,34 @@ exports.admin_delRecommend = [
                     status: 0,
                     message: "取消推荐成功",
                     data: updata_movie
+                })
+            })
+        }
+    }
+]
+
+// 删除电影评分
+exports.admin_delEvaluate = [
+    checkSchema({
+        evaluate_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "评分id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Evaluate.findByIdAndDelete(
+                {
+                    _id: req.params.evaluate_id
+                }
+            ).exec((err) => {
+                if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    message: "删除成功",
                 })
             })
         }

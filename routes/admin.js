@@ -50,4 +50,7 @@ router.put('/article/:article_id', admin_controllers.admin_updataArticle)
 //删除文章
 router.delete('/article/:article_id', admin_controllers.admin_delArticle)
 
+// 删除电影评分
+router.delete('/evaluate/:evaluate_id',admin_controllers.admin_delEvaluate)
+
 module.exports = router
