@@ -12,6 +12,10 @@ router.post("/register", user_controller.user_regiest)
 
 // 获取用户信息
 router.get("/userInfo", user_controller.user_userInfo)
+// 用户修改头像
+router.post("/changeAvatar",user_controller.user_changeAvatar)
+// 用户修改部分信息
+router.post("/changeInfo",user_controller.user_changeUserInfo) 
 
 //用户提交评论
 router.post("/movieComment", user_controller.user_comment)
