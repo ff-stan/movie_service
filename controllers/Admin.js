@@ -323,6 +323,7 @@ exports.admin_userAddStop = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "封停失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "封停成功",
@@ -359,6 +360,7 @@ exports.admin_userDelStop = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "解封失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "解封成功",
@@ -390,6 +392,7 @@ exports.admin_changeUserPwd = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "更改失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "更改成功",
@@ -444,6 +447,7 @@ exports.admin_addAdmin = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "修改成功",
@@ -480,6 +484,7 @@ exports.admin_delAdmin = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "修改成功",
