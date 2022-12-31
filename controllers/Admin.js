@@ -714,7 +714,7 @@ exports.admin_uploadImg = [
                     res.json({
                         status: 0,
                         message: "文件上传成功",
-                        url : `http://amdeus.top:3000/static/upload/${filename.filename}`
+                        url : `http://120.76.175.209:3000/static/upload/${filename.filename}`
                     })
                     res.end()
                 })
