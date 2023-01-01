@@ -172,6 +172,7 @@ exports.user_changeUserInfo = [
 				if (err) {
 					returnErr(res, err, next, (errStatus = 500))
 				}
+				new_user.password = undefined
 				if (new_user) {
 					res.json({
 						status: 0,
@@ -210,7 +211,7 @@ exports.user_changeAvatar = [
 				returnErr(res, err, next, "请求失败!", 500)
 				return
 			}
-			find_user.password = undefined
+			new_user.password = undefined
 			if (new_user) {
 				res.json({
 					status: 0,
