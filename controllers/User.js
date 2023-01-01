@@ -1,5 +1,6 @@
 const User = require("../models/user")
 const Movie = require("../models/movie")
+const Favorite = require("../models/Favorite")
 const Comment = require("../models/comment")
 const Mail = require("../models/mail")
 const Evaluate = require("../models/movieEvaluate")
@@ -410,6 +411,129 @@ exports.user_findMovieEvaluate = [
 		}
 	}
 ]
+
+// 用户收藏电影
+exports.user_favoriteMovie = [
+	// 清洗请求过来的数据
+	body("movie_id", "电影id为空!").trim().notEmpty(),
+	body("movie_name", "电影名称为空!").trim().notEmpty(),
+	body("favorite", "是否收藏为空!").trim().notEmpty(),
+	(req, res, next) => {
+		// 当验证出现错误时返回错误信息集
+		if(checkError(req, res)) { return }
+		// 对应电影的收藏只能有一个 已存在时就更新
+		Favorite.find({
+			movie_id: req.body.movie_id,
+			movie_name: req.body.movie_name,
+			user_id: req.auth.user_id,
+			user_name: req.auth.user_name
+		}).exec((err, find_favorite) => {
+			if (find_favorite.length === 0) {
+				//  创建一个新的模型
+				var favorite = new Favorite({
+					movie_id: req.body.movie_id,
+					movie_name: req.body.movie_name,
+					user_id: req.auth.user_id,
+					user_name: req.auth.user_name,
+					favorite: req.body.favorite,
+					createDate: Date.now()
+				})
+				// 通过验证后保存模型 返回信息
+				favorite.save((err) => {
+					if (err) {
+						returnErr(res, err, next, (errStatus = 500), (errMsg = "评分失败!"))
+						return
+					}
+					res.status(201).json({
+						status: 0,
+						massgae: "收藏成功!"
+					})
+				})
+			} else {
+				Favorite.findByIdAndUpdate(
+					{
+						_id: find_favorite[0]._id
+					},
+					{
+						$set: {
+							favorite: req.body.favorite
+						}
+					},
+					{
+						new: true
+					}
+				).exec((err, new_favorite) => {
+					if (err) {
+						returnErr(res, err, next, (errStatus = 500))
+						return
+					}
+					res.json({
+						status: 0,
+						message: "已修改!",
+						new_favorite: new_favorite
+					})
+				})
+			}
+		})
+	}
+]
+// 查询用户收藏列表
+exports.user_allFavorite = [
+	(req, res, next) => {
+		// 检查用户的token是否正确
+		if (req.auth) {
+			Favorite.find({
+				user_id: req.auth.user_id,
+				user_name: req.auth.user_name
+			}).exec((err, find_favorite) => {
+				if (err) {
+					returnErr(res, err, next, "请求失败!", 500)
+					return
+				}
+				if (find_favorite) {
+					res.json({
+						status: 0,
+						message: "查询成功!",
+						find_favorite: find_favorite
+					})
+				}
+			})
+		}
+	}
+]
+//查询对应电影id的收藏数
+exports.user_findMoviFavorite = [
+	checkSchema({
+		movie_id: {
+			in: ["params", "query"],
+			errorMessage: "电影id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		checkError(req, res)
+		// 检查用户的token是否正确
+		if (req.auth) {
+			Favorite.find({
+				movie_id: req.params.movie_id
+			}).exec((err, find_movie) => {
+				if (err) {
+					returnErr(res, err, next, "请求失败!", 500)
+					return
+				}
+				if (find_movie) {
+					res.json({
+						status: 0,
+						message: "获取成功!",
+						total: find_movie.length
+					})
+				}
+			})
+		}
+	}
+]
+
 
 // 用户利用邮箱和手机号码修改密码
 exports.user_findPassword = [

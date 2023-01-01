@@ -28,7 +28,14 @@ router.post("/evaluate", user_controller.user_evaluate)
 // 用户查询评分历史
 router.get("/evaluate", user_controller.user_allEvaluate)
 //查询对应电影id的评分列表
-router.get("/evaluate/movie/:movie_id", user_controller.user_findMovieEvaluate)
+router.get("/evaluate/:movie_id", user_controller.user_findMovieEvaluate)
+
+// 用户收藏电影
+router.post("/favorite", user_controller.user_favoriteMovie)
+// 查询用户收藏列表
+router.get("/favorite", user_controller.user_allFavorite)
+//查询对应电影id的收藏数
+router.get("/favorite/:movie_id", user_controller.user_findMoviFavorite)
 
 //用户找回密码
 router.post("/findPassword", user_controller.user_findPassword)
