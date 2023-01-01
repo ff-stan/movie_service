@@ -6,6 +6,7 @@ var evaluate = new mongoose.Schema({
 	user_id: String,
 	user_name: String,
 	evaluate: String,
+	sendDate: Date
 })
 
 var evaluateModel = mongoose.model("evaluate", evaluate)

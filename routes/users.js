@@ -19,6 +19,9 @@ router.post("/changeInfo",user_controller.user_changeUserInfo)
 
 //用户提交评论
 router.post("/movieComment", user_controller.user_comment)
+//用户查询评论历史
+router.get("/movieComment",user_controller.user_commentAll)
+
 
 // 用户给电影评分
 router.post("/evaluate", user_controller.user_evaluate)

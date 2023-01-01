@@ -3,10 +3,12 @@ var mongoose = require('../common/db')
 //数据库的数据集
 var comment = new mongoose.Schema({
     movie_id:String,
+	movieName : String,
     username:String,
     context:String,
     commentNumSuppose : Number,
-    check:Boolean
+    check:Boolean,
+	sendDate : Date
 })
 
 var commentModel = mongoose.model('comment',comment)
