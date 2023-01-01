@@ -133,13 +133,15 @@ exports.user_regiest = [
 exports.user_userInfo = [
 	(req, res, next) => {
 		if (req.auth) {
-			User.findById({
-				_id: req.auth.user_id
-			}).exec((err, find_user) => {
+			User.findById(
+				{
+					_id: req.auth.user_id
+				},
+				{ password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
+			).exec((err, find_user) => {
 				if (err) {
 					returnErr(res, err, next)
 				}
-				find_user.password = undefined
 				res.json({
 					status: 0,
 					messgae: "获取成功!",
@@ -169,13 +171,13 @@ exports.user_changeUserInfo = [
 					}
 				},
 				{
-					new: true
+					new: true,
+					fields : { password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
 				}
 			).exec((err, new_user) => {
 				if (err) {
 					returnErr(res, err, next, (errStatus = 500))
 				}
-				new_user.password = undefined
 				if (new_user) {
 					res.json({
 						status: 0,
@@ -207,14 +209,14 @@ exports.user_changeAvatar = [
 				}
 			},
 			{
-				new: true
+				new: true,
+				fields : { password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
 			}
 		).exec((err, new_user) => {
 			if (err) {
 				returnErr(res, err, next, "请求失败!", 500)
 				return
 			}
-			new_user.password = undefined
 			if (new_user) {
 				res.json({
 					status: 0,
@@ -240,7 +242,7 @@ exports.user_comment = [
 			movie_id: req.body.movie_id,
 			context: req.body.context,
 			commentNumSuppose: 0,
-			sendDate : Date.now(),
+			sendDate: Date.now(),
 			check: false
 		})
 		// 当验证出现错误时返回错误信息集
@@ -282,7 +284,6 @@ exports.user_commentAll = [
 	}
 ]
 
-
 // 用户给电影评分
 exports.user_evaluate = [
 	// 清洗请求过来的数据
@@ -307,7 +308,7 @@ exports.user_evaluate = [
 					user_id: req.auth.user_id,
 					user_name: req.auth.user_name,
 					evaluate: req.body.evaluate,
-					sendDate : Date.now()
+					sendDate: Date.now()
 				})
 				// 通过验证后保存模型 返回信息
 				evaluate.save((err) => {
@@ -427,6 +428,9 @@ exports.user_findPassword = [
 				},
 				{
 					$set: { password: req.body.rePassword }
+				},
+				{
+					fields : { password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
 				}
 			).exec((err, upData_user) => {
 				if (err) {
@@ -477,7 +481,7 @@ exports.user_sendEmail = [
 				toUser: req.body.toUserName,
 				title: req.body.title,
 				context: req.body.context,
-				sendDate : Date.now(),
+				sendDate: Date.now(),
 				isRead: false
 			})
 			mail.save((err) => {
