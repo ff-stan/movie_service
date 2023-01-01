@@ -1,6 +1,6 @@
 const User = require("../models/user")
 const Movie = require("../models/movie")
-const Favorite = require("../models/Favorite")
+const Favorite = require("../models/favorite")
 const Comment = require("../models/comment")
 const Mail = require("../models/mail")
 const Evaluate = require("../models/movieEvaluate")
