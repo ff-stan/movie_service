@@ -6,6 +6,8 @@ const movie_controller = require('../controllers/Movie')
 
 //获得所有的电影列表
 router.get('/', movie_controller.movie_allMovieData)
+// 获取带有对应tag的电影列表
+router.post('/',movie_controller.movie_findTagMovie)
 
 // 返回下载地址
 router.put('/download/:movie_id', movie_controller.movie_download)
