@@ -514,7 +514,9 @@ exports.admin_addArticle = [
             const article = new Article({
                 articleTitle: req.body.articleTitle,
                 articleContext: req.body.articleContext,
-                articleAuthor: req.auth.user_name
+                articleAuthor: req.auth.user_name,
+				articleCover : req.body.articleCover,
+				articleTime : Date.now()
             })
             article.save((err, new_article) => {
                 if (err) { returnErr(res, err, next, errMsg = "添加失败!", errStatus = 500) }

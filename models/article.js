@@ -2,6 +2,7 @@
 var mongoose = require('../common/db')
 //数据库的数据集
 var article = new mongoose.Schema({
+	articleCover : String,
     articleTitle: String,
     articleContext: String,
     articleTime: String,
