@@ -25,6 +25,8 @@ router.get("/movieComment",user_controller.user_commentAll)
 
 // 用户给电影评分
 router.post("/evaluate", user_controller.user_evaluate)
+// 用户查询当前电影评分
+router.get("/evaluate/user/:movie_id",user_controller.user_getEvaluate)
 // 用户查询评分历史
 router.get("/evaluate", user_controller.user_allEvaluate)
 //查询对应电影id的评分列表

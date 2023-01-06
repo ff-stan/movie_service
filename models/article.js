@@ -4,7 +4,7 @@ var mongoose = require('../common/db')
 var article = new mongoose.Schema({
     articleTitle: String,
     articleContext: String,
-    articleTime: { type: Date, default: Date.now },
+    articleTime: String,
     articleNumSuppose: Number,
     articleAuthor: String
 })

@@ -329,7 +329,8 @@ exports.user_evaluate = [
 					},
 					{
 						$set: {
-							evaluate: req.body.evaluate
+							evaluate: req.body.evaluate,
+							sendDate : Date.now()
 						}
 					},
 					{
@@ -348,6 +349,39 @@ exports.user_evaluate = [
 				})
 			}
 		})
+	}
+]
+// 用户查询当前电影评分
+exports.user_getEvaluate = [
+	checkSchema({
+		movie_id: {
+			in: ["params", "query"],
+			errorMessage: "电影id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		// 检查用户的token是否正确
+		if (req.auth) {
+			Evaluate.find({
+				user_id: req.auth.user_id,
+				user_name: req.auth.user_name,
+				movie_id : req.params.movie_id
+			}).exec((err, find_evaluate) => {
+				if (err) {
+					returnErr(res, err, next, "请求失败!", 500)
+					return
+				}
+				if (find_evaluate) {
+					res.json({
+						status: 0,
+						message: "查询成功!",
+						find_evaluate: find_evaluate
+					})
+				}
+			})
+		}
 	}
 ]
 // 用户查询自己的评分历史
@@ -456,7 +490,8 @@ exports.user_favoriteMovie = [
 					},
 					{
 						$set: {
-							favorite: req.body.favorite
+							favorite: req.body.favorite,
+							createDate : Date.now()
 						}
 					},
 					{

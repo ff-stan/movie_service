@@ -6,7 +6,7 @@ var favorite = new mongoose.Schema({
 	user_id: String,
 	user_name: String,
 	favorite: Boolean,
-	createDate: Date
+	createDate: String
 })
 
 var favoriteModel = mongoose.model("favorite", favorite)

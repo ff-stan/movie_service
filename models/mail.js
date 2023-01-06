@@ -7,7 +7,7 @@ var mail = new mongoose.Schema({
     title: String,
     context: String,
     isRead : Boolean,
-	sendDate: Date
+	sendDate: String
 })
 
 var mailModel = mongoose.model('mail',mail)

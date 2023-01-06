@@ -8,7 +8,7 @@ var comment = new mongoose.Schema({
     context:String,
     commentNumSuppose : Number,
     check:Boolean,
-	sendDate : Date
+	sendDate : String
 })
 
 var commentModel = mongoose.model('comment',comment)
