@@ -14,7 +14,8 @@ router.put('/download/:movie_id', movie_controller.movie_download)
 
 //获取相关电影的详细信息
 router.get('/details/:movie_id', movie_controller.movie_movieDetails)
-
+//查询对应电影id的评分列表
+router.get("/evaluate/:movie_id", movie_controller.movie_findMovieEvaluate)
 //获取相关电影的评论
 router.get('/comment/:movie_id', movie_controller.movie_movieComment)
 

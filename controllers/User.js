@@ -351,7 +351,7 @@ exports.user_evaluate = [
 		})
 	}
 ]
-// 用户查询当前电影评分
+// 用户查询自己对应电影的评分
 exports.user_getEvaluate = [
 	checkSchema({
 		movie_id: {
@@ -402,43 +402,6 @@ exports.user_allEvaluate = [
 						status: 0,
 						message: "查询成功!",
 						find_evaluate: find_evaluate
-					})
-				}
-			})
-		}
-	}
-]
-//查询对应电影id的评分列表
-exports.user_findMovieEvaluate = [
-	checkSchema({
-		movie_id: {
-			in: ["params", "query"],
-			errorMessage: "电影id传递错误",
-			trim: true,
-			isEmpty: false
-		}
-	}),
-	(req, res, next) => {
-		checkError(req, res)
-		// 检查用户的token是否正确
-		if (req.auth) {
-			Evaluate.find({
-				movie_id: req.params.movie_id
-			}).exec((err, find_movie) => {
-				if (err) {
-					returnErr(res, err, next, "请求失败!", 500)
-					return
-				}
-				if (find_movie) {
-					let sum = 0
-					find_movie.forEach((x) => {
-						sum += Number(x.evaluate)
-					})
-					res.json({
-						status: 0,
-						message: "获取成功!",
-						avg_evaluate: Number(sum / find_movie.length).toFixed(1),
-						find_movie: find_movie
 					})
 				}
 			})

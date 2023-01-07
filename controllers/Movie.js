@@ -2,7 +2,7 @@ const User = require("../models/user")
 const Movie = require("../models/movie")
 const Comment = require("../models/comment")
 const Recommend = require("../models/recommend")
-
+const Evaluate = require("../models/movieEvaluate")
 const { body, check, checkSchema } = require("express-validator")
 const { checkError, returnErr } = require("../utils/utils")
 
@@ -63,6 +63,7 @@ exports.movie_findTagMovie = [
 					rej(returnErr(res, err, next, (errMsg = "获取失败！")))
 				}
 				if (find_movie) {
+					res.header("Access-Control-Allow-Origin", "*")
 					res.json({
 						status: 0,
 						total: find_movie.length,
@@ -259,5 +260,42 @@ exports.movie_commentSupport = [
 				})
 			}
 		})
+	}
+]
+//查询对应电影id的评分列表
+exports.movie_findMovieEvaluate = [
+	checkSchema({
+		movie_id: {
+			in: ["params", "query"],
+			errorMessage: "电影id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		checkError(req, res)
+		// 检查用户的token是否正确
+		if (req.auth) {
+			Evaluate.find({
+				movie_id: req.params.movie_id
+			}).exec((err, find_movie) => {
+				if (err) {
+					returnErr(res, err, next, "请求失败!", 500)
+					return
+				}
+				if (find_movie) {
+					let sum = 0
+					find_movie.forEach((x) => {
+						sum += Number(x.evaluate)
+					})
+					res.json({
+						status: 0,
+						message: "获取成功!",
+						avg_evaluate: Number(sum / find_movie.length).toFixed(1),
+						find_movie: find_movie
+					})
+				}
+			})
+		}
 	}
 ]
