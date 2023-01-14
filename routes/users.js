@@ -21,7 +21,8 @@ router.post("/changeInfo",user_controller.user_changeUserInfo)
 router.post("/movieComment", user_controller.user_comment)
 //用户查询评论历史
 router.get("/movieComment",user_controller.user_commentAll)
-
+// 用户删除自己评论
+router.delete("/movieComment/:comment_id",user_controller.user_delComment)
 
 // 用户给电影评分
 router.post("/evaluate", user_controller.user_evaluate)

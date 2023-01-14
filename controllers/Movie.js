@@ -46,7 +46,7 @@ exports.movie_allMovieData = [
 		}
 	}
 ]
-
+// 获取对应tag的电影列表
 exports.movie_findTagMovie = [
 	// 验证在路由中的参数
 	body("tag", "电影tag传递错误").trim().notEmpty(),

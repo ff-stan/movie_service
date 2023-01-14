@@ -3,7 +3,7 @@ var mongoose = require("../common/db")
 var evaluate = new mongoose.Schema({
 	movie_id: String,
 	movie_name: String,
-	user_id: String,
+	user_id: {type: mongoose.Schema.Types.ObjectId, ref:'users'},
 	user_name: String,
 	evaluate: String,
 	sendDate: String

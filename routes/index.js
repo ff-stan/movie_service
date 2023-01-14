@@ -17,4 +17,8 @@ router.get('/article', index_controller.index_showArticle)
 //显示文章的内容
 router.get('/article/:article_id', index_controller.index_articleDetails)
 
+// 获取头像路径
+router.get('/userAvatar/:user_id',index_controller.user_getAvatar)
+// 获取个人空间展示信息
+router.get('/getUsersData/:user_id',index_controller.user_getUsersData)
 module.exports = router

@@ -173,7 +173,14 @@ exports.user_changeUserInfo = [
 				},
 				{
 					new: true,
-					fields : { password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
+					fields: {
+						password: 0,
+						userAdmin: 0,
+						userStop: 0,
+						userPower: 0,
+						_id: 0,
+						__v: 0
+					}
 				}
 			).exec((err, new_user) => {
 				if (err) {
@@ -211,7 +218,14 @@ exports.user_changeAvatar = [
 			},
 			{
 				new: true,
-				fields : { password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
+				fields: {
+					password: 0,
+					userAdmin: 0,
+					userStop: 0,
+					userPower: 0,
+					_id: 0,
+					__v: 0
+				}
 			}
 		).exec((err, new_user) => {
 			if (err) {
@@ -284,6 +298,36 @@ exports.user_commentAll = [
 		}
 	}
 ]
+// 用户删除自己的评论
+exports.user_delComment = [
+	checkSchema({
+		comment_id: {
+			in: ["params", "query"],
+			errorMessage: "评论id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		if (req.auth) {
+			Comment.findOneAndDelete(
+				{
+					_id: req.params.comment_id,
+					username: req.auth.user_name
+				}
+			).exec((err) => {
+				if (err) {
+					returnErr(res, err, next, "请求失败!", 500)
+					return
+				}
+				res.json({
+					status: 0,
+					message: "删除成功!"
+				})
+			})
+		}
+	}
+]
 
 // 用户给电影评分
 exports.user_evaluate = [
@@ -330,7 +374,7 @@ exports.user_evaluate = [
 					{
 						$set: {
 							evaluate: req.body.evaluate,
-							sendDate : Date.now()
+							sendDate: Date.now()
 						}
 					},
 					{
@@ -367,7 +411,7 @@ exports.user_getEvaluate = [
 			Evaluate.find({
 				user_id: req.auth.user_id,
 				user_name: req.auth.user_name,
-				movie_id : req.params.movie_id
+				movie_id: req.params.movie_id
 			}).exec((err, find_evaluate) => {
 				if (err) {
 					returnErr(res, err, next, "请求失败!", 500)
@@ -417,7 +461,9 @@ exports.user_favoriteMovie = [
 	body("favorite", "是否收藏为空!").trim().notEmpty(),
 	(req, res, next) => {
 		// 当验证出现错误时返回错误信息集
-		if(checkError(req, res)) { return }
+		if (checkError(req, res)) {
+			return
+		}
 		// 对应电影的收藏只能有一个 已存在时就更新
 		Favorite.find({
 			movie_id: req.body.movie_id,
@@ -454,7 +500,7 @@ exports.user_favoriteMovie = [
 					{
 						$set: {
 							favorite: req.body.favorite,
-							createDate : Date.now()
+							createDate: Date.now()
 						}
 					},
 					{
@@ -532,7 +578,6 @@ exports.user_findMoviFavorite = [
 	}
 ]
 
-
 // 用户利用邮箱和手机号码修改密码
 exports.user_findPassword = [
 	body("userMail", "邮箱验证错误").trim().isEmail().normalizeEmail(),
@@ -552,7 +597,14 @@ exports.user_findPassword = [
 					$set: { password: req.body.rePassword }
 				},
 				{
-					fields : { password: 0, userAdmin: 0, userStop: 0, userPower: 0, _id: 0, __v: 0 }
+					fields: {
+						password: 0,
+						userAdmin: 0,
+						userStop: 0,
+						userPower: 0,
+						_id: 0,
+						__v: 0
+					}
 				}
 			).exec((err, upData_user) => {
 				if (err) {

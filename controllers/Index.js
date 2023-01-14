@@ -3,7 +3,7 @@ const Movie = require("../models/movie")
 const Comment = require("../models/comment")
 const Recommend = require("../models/recommend")
 const Article = require("../models/article")
-
+const Favorite = require("../models/favorite")
 const { body, check, checkSchema } = require("express-validator")
 const { checkError, returnErr } = require("../utils/utils")
 
@@ -85,7 +85,7 @@ exports.index_search = [
 		}
 		const searchData = {}
 		// 先搜索电影名称
-		const movie = new Promise((resolve,rej) => {
+		const movie = new Promise((resolve, rej) => {
 			Movie.find(
 				{
 					movieName: { $regex: req.body.searchValue }
@@ -101,15 +101,14 @@ exports.index_search = [
 						}
 						resolve()
 					}
-					
 				}
 			)
 		})
 		// 再搜索文章标题
-		const article = new Promise((resolve,rej) => {
+		const article = new Promise((resolve, rej) => {
 			Article.find(
 				{
-					articleTitle: { $regex: req.body.searchValue } 
+					articleTitle: { $regex: req.body.searchValue }
 				},
 				(err, find_article) => {
 					if (err) {
@@ -126,10 +125,10 @@ exports.index_search = [
 			)
 		})
 		// 当两个promise都res才会返回结果
-		Promise.all([movie,article]).then(() => {
+		Promise.all([movie, article]).then(() => {
 			res.json({
 				status: 0,
-				searchData: searchData,
+				searchData: searchData
 			})
 		})
 	}
@@ -200,5 +199,77 @@ exports.index_articleDetails = [
 				})
 			}
 		})
+	}
+]
+
+// 获取头像路径
+exports.user_getAvatar = [
+	checkSchema({
+		user_id: {
+			in: ["params", "query"],
+			errorMessage: "用户id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		User.find(
+			{
+				_id: req.params.user_id
+			},
+			{ userAvatar: 1 }
+		).exec((err, find_userAvatar) => {
+			if (err) {
+				returnErr(res, err, next, "请求失败!", 500)
+				return
+			}
+			if (find_userAvatar) {
+				res.json({
+					status: 0,
+					message: "查询成功!",
+					find_userAvatar: find_userAvatar
+				})
+			}
+		})
+	}
+]
+
+// 获取个人空间展示信息
+exports.user_getUsersData = [
+	checkSchema({
+		user_id: {
+			in: ["params", "query"],
+			errorMessage: "用户id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		// 联合查询
+		User.aggregate(
+			[
+				{
+					$project: { userAvatar: 1, username: 1, userSex: 1, userBio: 1 }
+				},
+				{
+					$lookup: {
+						from: "favorites", // 关联的集合
+						localField: "_id", // 本地关联的字段
+						foreignField: "user_id", // 对方集合关联的字段
+						as: "favorites" // 结果字段名,
+					}
+				},
+				{
+					$match : { favorites : {$elemMatch : {$ne:null}} }
+				}
+			],
+			(err, data) => {
+				res.json({
+					status: 0,
+					message: "查询成功!",
+					data: data
+				})
+			}
+		)
 	}
 ]

@@ -5,7 +5,9 @@ var comment = new mongoose.Schema({
     movie_id:String,
 	movieName : String,
     username:String,
+	user_id : {type: mongoose.Schema.Types.ObjectId, ref:'users'},
     context:String,
+	evaluate : Number,
     commentNumSuppose : Number,
     check:Boolean,
 	sendDate : String

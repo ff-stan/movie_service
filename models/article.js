@@ -7,7 +7,8 @@ var article = new mongoose.Schema({
     articleContext: String,
     articleTime: String,
     articleNumSuppose: Number,
-    articleAuthor: String
+    articleAuthor: String,
+	articleAuthorId : {type: mongoose.Schema.Types.ObjectId, ref:'users'}
 })
 
 var articleModel = mongoose.model('article', article)
