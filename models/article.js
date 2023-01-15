@@ -1,23 +1,16 @@
 //引入相关的文件和代码包
-var mongoose = require('../common/db');
+var mongoose = require('../common/db')
 //数据库的数据集
 var article = new mongoose.Schema({
+	articleCover : String,
     articleTitle: String,
     articleContext: String,
-    articleTime: { type: Date, default: Date.now },
+    articleTime: String,
     articleNumSuppose: Number,
-    articleAuthor: String
-});
-//数据操作的一些常用方法
-//通过ID查找
-article.statics.findByArticleId = function (id, callBack) {
-    this.find({ _id: id }, callBack);
-};
+    articleAuthor: String,
+	articleAuthorId : {type: mongoose.Schema.Types.ObjectId, ref:'users'}
+})
 
-//找到所有的文章
-article.statics.findAll = function (callBack) {
-    this.find({}, callBack);
-};
-var articleModel = mongoose.model('article', article);
+var articleModel = mongoose.model('article', article)
 
-module.exports = articleModel;
+module.exports = articleModel

@@ -5,10 +5,14 @@ const user = new mongoose.Schema({
     username: String,
     password: String,
     userMail: String,
+	userAvatar : String,
+	userBio : String,
+	userSex : String,
+	userBirthday : String,
     userPhone: Number,
     userAdmin: Boolean,
     userPower: Number,
-    userStop: Boolean
+    userStop: Boolean,
 })
 
 //管理员登录验证

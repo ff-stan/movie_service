@@ -1,7 +1,7 @@
 //数据库插件引入
 const mongoose = require('mongoose')
 // 
-const url = 'mongodb://movie:1240@amdeus.top:12406/movieService'
+const url = 'mongodb://movie:1240@120.76.175.209:12406/movieService'
 mongoose.connect(url,
     {
         useNewUrlParser: true,

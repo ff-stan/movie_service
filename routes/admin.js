@@ -23,8 +23,8 @@ router.put('/movie/addrecommend/:movie_id', admin_controllers.admin_addRecommend
 //删除主页推荐
 router.put('/movie/delrecommend/:movie_id', admin_controllers.admin_delRecommend)
 
-//用get方式获取 显示后台所有评论
-router.get('/movie/comment', admin_controllers.admin_movieAllComment)
+//用get方式获取 显示后台所有已审核或未审核评论 
+router.get('/movie/comment/:checkType', admin_controllers.admin_movieAllComment)
 //将评论进行审核 未审核过的不予展示
 router.put('/movie/comment/:comment_id', admin_controllers.admin_movieCheckComment)
 //删除评论
@@ -49,5 +49,8 @@ router.post('/article', admin_controllers.admin_addArticle)
 router.put('/article/:article_id', admin_controllers.admin_updataArticle)
 //删除文章
 router.delete('/article/:article_id', admin_controllers.admin_delArticle)
+
+// 删除电影评分
+router.delete('/evaluate/:evaluate_id',admin_controllers.admin_delEvaluate)
 
 module.exports = router

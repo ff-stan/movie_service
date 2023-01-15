@@ -4,6 +4,7 @@ const Comment = require('../models/comment')
 const Mail = require('../models/mail')
 const Article = require('../models/article')
 const Recommend = require('../models/recommend')
+const Evaluate = require('../models/movieEvaluate')
 
 const jwt = require("jsonwebtoken")
 // 秘钥
@@ -33,10 +34,7 @@ exports.admin_adminLogin = [
         })
     }).withMessage("用户已被封停"),
     body("password").trim().notEmpty().withMessage("密码为空!"),
-    (req, res, next) => {
-        if (checkError(req, res)) {
-
-        } else {
+    (req, res, next) => {checkError(req, res)
             User.findOne({
                 username: req.body.userName,
                 password: req.body.password,
@@ -63,8 +61,6 @@ exports.admin_adminLogin = [
                 }
             })
         }
-
-    }
 ]
 
 // 添加电影项目
@@ -220,7 +216,9 @@ exports.admin_movieData = [
 exports.admin_movieAllComment = [
     (req, res, next) => {
         if (req.auth.userAdmin) {
-            Comment.find().exec((err, find_comment) => {
+            Comment.find({
+                check : req.params.checkType
+            }).exec((err, find_comment) => {
                 if (err) { returnErr(res, err, next, errStatus = 500) }
                 if (find_comment) {
                     res.json({
@@ -325,6 +323,7 @@ exports.admin_userAddStop = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "封停失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "封停成功",
@@ -361,6 +360,7 @@ exports.admin_userDelStop = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "解封失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "解封成功",
@@ -392,6 +392,7 @@ exports.admin_changeUserPwd = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "更改失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "更改成功",
@@ -446,6 +447,7 @@ exports.admin_addAdmin = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "修改成功",
@@ -482,6 +484,7 @@ exports.admin_delAdmin = [
                 }
             ).exec((err, updata_user) => {
                 if (err) { returnErr(res, err, next, errMsg = "修改失败!", errStatus = 500) }
+				updata_user.password = undefined
                 res.json({
                     status: 0,
                     message: "修改成功",
@@ -511,7 +514,10 @@ exports.admin_addArticle = [
             const article = new Article({
                 articleTitle: req.body.articleTitle,
                 articleContext: req.body.articleContext,
-                articleAuthor: req.auth.user_name
+                articleAuthor: req.auth.user_name,
+				articleCover : req.body.articleCover,
+				articleAuthorId : req.auth.user_id,
+				articleTime : Date.now()
             })
             article.save((err, new_article) => {
                 if (err) { returnErr(res, err, next, errMsg = "添加失败!", errStatus = 500) }
@@ -661,6 +667,34 @@ exports.admin_delRecommend = [
     }
 ]
 
+// 删除电影评分
+exports.admin_delEvaluate = [
+    checkSchema({
+        evaluate_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "评分id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            Evaluate.findByIdAndDelete(
+                {
+                    _id: req.params.evaluate_id
+                }
+            ).exec((err) => {
+                if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    message: "删除成功",
+                })
+            })
+        }
+    }
+]
+
 // 上传图片接口
 exports.admin_uploadImg = [
     (req, res, next) => {
@@ -688,7 +722,7 @@ exports.admin_uploadImg = [
                     res.json({
                         status: 0,
                         message: "文件上传成功",
-                        url : `http://amdeus.top:3000/static/upload/${filename.filename}`
+                        url : `http://120.76.175.209:3000/static/upload/${filename.filename}`
                     })
                     res.end()
                 })

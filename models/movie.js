@@ -1,4 +1,4 @@
-var mongoose = require('../common/db');
+var mongoose = require('../common/db')
 
 //电影数据集
 var movie = new mongoose.Schema({
@@ -15,17 +15,7 @@ var movie = new mongoose.Schema({
     movieNumSuppose: Number,
     movieNumDownload: Number,
     movieMainPage: Boolean
-});
+})
 
-//查找电影
-movie.statics.findById = function(movie_id,callBack){
-    this.find({_id:movie_id},callBack);
-};
-
-//所有数据
-movie.statics.findAll = function(callBack){
-    this.find({},callBack);
-}
-
-var movieModel = mongoose.model('movie',movie);
-module.exports = movieModel;
+var movieModel = mongoose.model('movie',movie)
+module.exports = movieModel
