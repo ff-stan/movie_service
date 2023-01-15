@@ -250,29 +250,32 @@ exports.user_comment = [
 	body("movieName", "电影名称为空!").trim().notEmpty(),
 	body("context", "评论内容为空!").trim().notEmpty(),
 	(req, res, next) => {
-		//  创建一个新的模型
-		var comment = new Comment({
-			username: req.auth.user_name || "匿名用户",
-			movieName: req.body.movieName,
-			movie_id: req.body.movie_id,
-			context: req.body.context,
-			commentNumSuppose: 0,
-			sendDate: Date.now(),
-			check: false
-		})
-		// 当验证出现错误时返回错误信息集
-		checkError(req, res)
-		// 通过验证后保存模型 返回信息
-		comment.save((err) => {
-			if (err) {
-				returnErr(res, err, next, (errStatus = 500))
-				return
-			}
-			res.status(201).json({
-				status: 0,
-				massgae: "评论成功!"
+		if (req.auth) {
+			//  创建一个新的模型
+			var comment = new Comment({
+				username: req.auth.user_name,
+				user_id: req.auth.user_id,
+				movieName: req.body.movieName,
+				movie_id: req.body.movie_id,
+				context: req.body.context,
+				commentNumSuppose: 0,
+				sendDate: Date.now(),
+				check: false
 			})
-		})
+			// 当验证出现错误时返回错误信息集
+			checkError(req, res)
+			// 通过验证后保存模型 返回信息
+			comment.save((err) => {
+				if (err) {
+					returnErr(res, err, next, (errStatus = 500))
+					return
+				}
+				res.status(201).json({
+					status: 0,
+					massgae: "评论成功!"
+				})
+			})
+		}
 	}
 ]
 // 用户查看评论历史
@@ -310,12 +313,10 @@ exports.user_delComment = [
 	}),
 	(req, res, next) => {
 		if (req.auth) {
-			Comment.findOneAndDelete(
-				{
-					_id: req.params.comment_id,
-					username: req.auth.user_name
-				}
-			).exec((err) => {
+			Comment.findOneAndDelete({
+				_id: req.params.comment_id,
+				username: req.auth.user_name
+			}).exec((err) => {
 				if (err) {
 					returnErr(res, err, next, "请求失败!", 500)
 					return
@@ -651,7 +652,8 @@ exports.user_sendEmail = [
 		// 检查用户的token是否正确
 		if (req.auth) {
 			const mail = new Mail({
-				fromUser: req.auth.user_name || "匿名用户",
+				fromUser: req.auth.user_name,
+				fromUserId: req.auth.user_id,
 				toUser: req.body.toUserName,
 				title: req.body.title,
 				context: req.body.context,

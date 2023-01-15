@@ -516,6 +516,7 @@ exports.admin_addArticle = [
                 articleContext: req.body.articleContext,
                 articleAuthor: req.auth.user_name,
 				articleCover : req.body.articleCover,
+				articleAuthorId : req.auth.user_id,
 				articleTime : Date.now()
             })
             article.save((err, new_article) => {
