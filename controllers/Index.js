@@ -50,7 +50,7 @@ exports.index_indexRank = [
 					if (find_movie) {
 						res.json({
 							status: 0,
-							messgae: "获取成功!",
+							message: "获取成功!",
 							total: find_movie.length,
 							data: find_movie
 						})
@@ -152,7 +152,7 @@ exports.index_showArticle = [
 					if (find_article) {
 						res.json({
 							status: 0,
-							messgae: "获取成功!",
+							message: "获取成功!",
 							total: find_article.length,
 							data: find_article
 						})
@@ -166,7 +166,7 @@ exports.index_showArticle = [
 				if (find_article) {
 					res.json({
 						status: 0,
-						messgae: "获取成功!",
+						message: "获取成功!",
 						total: find_article.length,
 						data: find_article
 					})
@@ -195,7 +195,7 @@ exports.index_articleDetails = [
 			if (find_article) {
 				res.json({
 					status: 0,
-					messgae: "获取成功!",
+					message: "获取成功!",
 					data: find_article
 				})
 			}
@@ -232,7 +232,7 @@ exports.index_articleComment = [
 ]
 
 // 获取头像路径
-exports.user_getAvatar = [
+exports.index_getAvatar = [
 	checkSchema({
 		user_id: {
 			in: ["params", "query"],
@@ -264,7 +264,7 @@ exports.user_getAvatar = [
 ]
 
 // 获取个人空间展示信息
-exports.user_getUsersData = [
+exports.index_getUsersData = [
 	checkSchema({
 		user_id: {
 			in: ["params", "query"],
@@ -305,7 +305,7 @@ exports.user_getUsersData = [
 	}
 ]
 // 用户查看评论历史
-exports.user_commentAll = [
+exports.index_commentAll = [
 	checkSchema({
 		user_id: {
 			in: ["params", "query"],

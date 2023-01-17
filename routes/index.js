@@ -20,9 +20,9 @@ router.get("/article/:article_id", index_controller.index_articleDetails)
 router.get("/article/comment/:article_id", index_controller.index_articleComment)
 
 // 获取头像路径
-router.get("/userAvatar/:user_id", index_controller.user_getAvatar)
+router.get("/userAvatar/:user_id", index_controller.index_getAvatar)
 // 获取个人空间展示信息
-router.get("/getUsersData/:user_id", index_controller.user_getUsersData)
+router.get("/getUsersData/:user_id", index_controller.index_getUsersData)
 //用户查询所有评论历史
-router.get("/comment/:user_id", index_controller.user_commentAll)
+router.get("/comment/:user_id", index_controller.index_commentAll)
 module.exports = router

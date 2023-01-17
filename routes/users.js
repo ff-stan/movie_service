@@ -21,6 +21,8 @@ router.post("/changeInfo",user_controller.user_changeUserInfo)
 router.post("/movieComment", user_controller.user_comment)
 // 用户删除自己评论
 router.delete("/movieComment/:comment_id",user_controller.user_delComment)
+//用户查询自己所有评论历史
+router.get("/comment/", user_controller.user_commentAll)
 
 // 用户提交文章评论
 router.post("/articleComment", user_controller.user_articleComment)

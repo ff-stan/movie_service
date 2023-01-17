@@ -146,7 +146,7 @@ exports.user_userInfo = [
 				}
 				res.json({
 					status: 0,
-					messgae: "获取成功!",
+					message: "获取成功!",
 					data: find_user
 				})
 			})
@@ -271,7 +271,7 @@ exports.user_comment = [
 				}
 				res.status(201).json({
 					status: 0,
-					massgae: "评论成功!"
+					message: "评论成功!"
 				})
 			})
 		}
@@ -304,10 +304,34 @@ exports.user_articleComment = [
 				}
 				res.status(201).json({
 					status: 0,
-					massgae: "评论成功!"
+					message: "评论成功!"
 				})
 			})
 		}
+	}
+]
+// 用户查看评论历史
+exports.user_commentAll = [
+	(req, res, next) => {
+		// 查询影评与文章评论内容
+		Comment.find({ user_id: req.auth.user_id }).exec((err, find_Comment) => {
+			if (err) {
+				returnErr(res, err, next, "请求失败!", 500)
+				return
+			}
+			articleComment
+				.find({
+					user_id: req.auth.user_id
+				})
+				.exec((err, find_articleComment) => {
+					res.json({
+						status: 0,
+						message: "查询成功!",
+						find_Comment,
+						find_articleComment
+					})
+				})
+		})
 	}
 ]
 // 用户删除自己的评论
@@ -373,7 +397,7 @@ exports.user_evaluate = [
 					}
 					res.status(201).json({
 						status: 0,
-						massgae: "评分成功!"
+						message: "评分成功!"
 					})
 				})
 			} else {
@@ -499,7 +523,7 @@ exports.user_favoriteMovie = [
 					}
 					res.status(201).json({
 						status: 0,
-						massgae: "收藏成功!"
+						message: "收藏成功!"
 					})
 				})
 			} else {
@@ -676,7 +700,7 @@ exports.user_sendEmail = [
 				}
 				res.status(201).json({
 					status: 0,
-					massage: "发送成功!"
+					message: "发送成功!"
 				})
 			})
 		}
@@ -701,7 +725,7 @@ exports.user_showEmail = [
 						if (find_mail) {
 							res.json({
 								status: 0,
-								messgae: "获取成功!",
+								message: "获取成功!",
 								total: find_mail.length,
 								data: find_mail
 							})

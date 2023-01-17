@@ -23,7 +23,7 @@ exports.movie_allMovieData = [
 					if (find_movie) {
 						res.json({
 							status: 0,
-							messgae: "获取成功!",
+							message: "获取成功!",
 							total: find_movie.length,
 							data: find_movie
 						})
@@ -37,7 +37,7 @@ exports.movie_allMovieData = [
 				if (find_movie) {
 					res.json({
 						status: 0,
-						messgae: "获取成功!",
+						message: "获取成功!",
 						total: find_movie.length,
 						data: find_movie
 					})
