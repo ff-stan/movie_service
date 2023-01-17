@@ -2,6 +2,7 @@ const User = require("../models/user")
 const Movie = require("../models/movie")
 const Favorite = require("../models/favorite")
 const Comment = require("../models/comment")
+const articleComment = require("../models/articleComment")
 const Mail = require("../models/mail")
 const Evaluate = require("../models/movieEvaluate")
 
@@ -247,7 +248,6 @@ exports.user_changeAvatar = [
 exports.user_comment = [
 	// 清洗请求过来的数据
 	body("movie_id", "电影id为空!").trim().notEmpty(),
-	body("movieName", "电影名称为空!").trim().notEmpty(),
 	body("context", "评论内容为空!").trim().notEmpty(),
 	(req, res, next) => {
 		if (req.auth) {
@@ -255,7 +255,6 @@ exports.user_comment = [
 			var comment = new Comment({
 				username: req.auth.user_name,
 				user_id: req.auth.user_id,
-				movieName: req.body.movieName,
 				movie_id: req.body.movie_id,
 				context: req.body.context,
 				commentNumSuppose: 0,
@@ -278,25 +277,35 @@ exports.user_comment = [
 		}
 	}
 ]
-// 用户查看评论历史
-exports.user_commentAll = [
+// 用户提交文章评论
+exports.user_articleComment = [
+	// 清洗请求过来的数据
+	body("article_id", "电影id为空!").trim().notEmpty(),
+	body("context", "评论内容为空!").trim().notEmpty(),
 	(req, res, next) => {
-		// 检查用户的token是否正确
 		if (req.auth) {
-			Comment.find({
-				username: req.auth.user_name
-			}).exec((err, find_Comment) => {
+			//  创建一个新的模型
+			var articlecomment = new articleComment({
+				username: req.auth.user_name,
+				user_id: req.auth.user_id,
+				article_id: req.body.article_id,
+				context: req.body.context,
+				commentNumSuppose: 0,
+				sendDate: Date.now(),
+				check: false
+			})
+			// 当验证出现错误时返回错误信息集
+			checkError(req, res)
+			// 通过验证后保存模型 返回信息
+			articlecomment.save((err) => {
 				if (err) {
-					returnErr(res, err, next, "请求失败!", 500)
+					returnErr(res, err, next, (errStatus = 500))
 					return
 				}
-				if (find_Comment) {
-					res.json({
-						status: 0,
-						message: "查询成功!",
-						find_Comment: find_Comment
-					})
-				}
+				res.status(201).json({
+					status: 0,
+					massgae: "评论成功!"
+				})
 			})
 		}
 	}

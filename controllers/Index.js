@@ -4,6 +4,7 @@ const Comment = require("../models/comment")
 const Recommend = require("../models/recommend")
 const Article = require("../models/article")
 const Favorite = require("../models/favorite")
+const articleComment = require("../models/articleComment")
 const { body, check, checkSchema } = require("express-validator")
 const { checkError, returnErr } = require("../utils/utils")
 
@@ -201,6 +202,34 @@ exports.index_articleDetails = [
 		})
 	}
 ]
+// 获取文章评论
+exports.index_articleComment = [
+	checkSchema({
+		article_id: {
+			in: ["params", "query"],
+			errorMessage: "文章id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		articleComment
+			.find({
+				article_id: req.params.article_id
+			})
+			.exec((err, find_articleComment) => {
+				if (err) {
+					returnErr(res, err, next, "请求失败!", 500)
+					return
+				}
+				res.json({
+					status: 0,
+					message: "查询成功!",
+					find_articleComment
+				})
+			})
+	}
+]
 
 // 获取头像路径
 exports.user_getAvatar = [
@@ -258,18 +287,52 @@ exports.user_getUsersData = [
 						foreignField: "user_id", // 对方集合关联的字段
 						as: "favorites" // 结果字段名,
 					}
-				},
-				{
-					$match : { favorites : {$elemMatch : {$ne:null}} }
 				}
 			],
 			(err, data) => {
-				res.json({
-					status: 0,
-					message: "查询成功!",
-					data: data
+				// 只返回对应id的内容
+				data.forEach((x) => {
+					if (req.params.user_id === `${x._id}`) {
+						return res.json({
+							status: 0,
+							message: "查询成功!",
+							data: x
+						})
+					}
 				})
 			}
 		)
+	}
+]
+// 用户查看评论历史
+exports.user_commentAll = [
+	checkSchema({
+		user_id: {
+			in: ["params", "query"],
+			errorMessage: "用户id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		// 查询影评与文章评论内容
+		Comment.find({ user_id: req.params.user_id }).exec((err, find_Comment) => {
+			if (err) {
+				returnErr(res, err, next, "请求失败!", 500)
+				return
+			}
+			articleComment
+				.find({
+					user_id: req.params.user_id
+				})
+				.exec((err, find_articleComment) => {
+					res.json({
+						status: 0,
+						message: "查询成功!",
+						find_Comment,
+						find_articleComment
+					})
+				})
+		})
 	}
 ]
