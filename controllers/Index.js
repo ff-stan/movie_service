@@ -226,6 +226,7 @@ exports.index_articleComment = [
 				},
 				{
 					$project: {
+						article_id : 1,
 						username: 1,
 						context: 1,
 						sendDate: 1,
@@ -235,10 +236,19 @@ exports.index_articleComment = [
 				}
 			],
 			(err, data) => {
-				res.json({
-					status: 0,
-					message: "查询成功!",
-					data: data
+				let list = []
+				data.forEach((x,index) => {
+					if(req.params.article_id === `${x.article_id}`){
+						list.push(x)
+					}
+					if(data.length === index+1){
+						res.json({
+							status: 0,
+							total : list.length,
+							message: "查询成功!",
+							data: list
+						})
+					}
 				})
 			}
 		)

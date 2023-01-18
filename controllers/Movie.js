@@ -171,6 +171,7 @@ exports.movie_movieComment = [
 				},
 				{
 					$project: {
+						movie_id : 1,
 						username: 1,
 						context: 1,
 						sendDate: 1,
@@ -180,10 +181,19 @@ exports.movie_movieComment = [
 				}
 			],
 			(err, data) => {
-				res.json({
-					status: 0,
-					message: "查询成功!",
-					data: data
+				let list = []
+				data.forEach((x,index) => {
+					if(req.params.movie_id === `${x.movie_id}`){
+						list.push(x)
+					}
+					if(data.length === index+1){
+						res.json({
+							status: 0,
+							total : list.length,
+							message: "查询成功!",
+							data: list
+						})
+					}
 				})
 			}
 		)
