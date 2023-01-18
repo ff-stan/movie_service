@@ -171,6 +171,7 @@ exports.movie_movieComment = [
 				},
 				{
 					$project: {
+						user_id : 1,
 						movie_id : 1,
 						username: 1,
 						context: 1,
