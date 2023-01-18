@@ -213,21 +213,35 @@ exports.index_articleComment = [
 		}
 	}),
 	(req, res, next) => {
-		articleComment
-			.find({
-				article_id: req.params.article_id
-			})
-			.exec((err, find_articleComment) => {
-				if (err) {
-					returnErr(res, err, next, "请求失败!", 500)
-					return
+		// 联合查询 使评论包含头像路径
+		articleComment.aggregate(
+			[
+				{
+					$lookup: {
+						from: "users", // 关联的集合
+						localField: "user_id", // 本地关联的字段
+						foreignField: "_id", // 对方集合关联的字段
+						as: "users" // 结果字段名,
+					}
+				},
+				{
+					$project: {
+						username: 1,
+						context: 1,
+						sendDate: 1,
+						commentNumSuppose: 1,
+						users: { userAvatar: 1 }
+					}
 				}
+			],
+			(err, data) => {
 				res.json({
 					status: 0,
 					message: "查询成功!",
-					find_articleComment
+					data: data
 				})
-			})
+			}
+		)
 	}
 ]
 

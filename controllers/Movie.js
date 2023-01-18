@@ -159,21 +159,32 @@ exports.movie_movieComment = [
 		}
 	}),
 	(req, res, next) => {
-		Comment.find(
-			{
-				movie_id: req.params.movie_id
-			},
-			(err, find_comment) => {
-				if (err) {
-					returnErr(res, err, next)
+		Comment.aggregate(
+			[
+				{
+					$lookup: {
+						from: "users", // 关联的集合
+						localField: "user_id", // 本地关联的字段
+						foreignField: "_id", // 对方集合关联的字段
+						as: "users" // 结果字段名,
+					}
+				},
+				{
+					$project: {
+						username: 1,
+						context: 1,
+						sendDate: 1,
+						commentNumSuppose: 1,
+						users: { userAvatar: 1 }
+					}
 				}
-				if (find_comment) {
-					res.json({
-						status: 0,
-						message: "获取成功!",
-						data: find_comment
-					})
-				}
+			],
+			(err, data) => {
+				res.json({
+					status: 0,
+					message: "查询成功!",
+					data: data
+				})
 			}
 		)
 	}
