@@ -501,27 +501,28 @@ exports.user_favoriteMovie = [
 		if (checkError(req, res)) {
 			return
 		}
-		if(req.auth) {
+		if (req.auth) {
 			//  创建一个新的模型
-		var favorite = new Favorite({
-			movie_id: req.body.movie_id,
-			movie_name: req.body.movie_name,
-			user_id: req.auth.user_id,
-			user_name: req.auth.user_name,
-			favorite: true,
-			createDate: Date.now()
-		})
-		// 通过验证后保存模型 返回信息
-		favorite.save((err) => {
-			if (err) {
-				returnErr(res, err, next, (errStatus = 500), (errMsg = "收藏失败!"))
-				return
-			}
-			res.status(201).json({
-				status: 0,
-				message: "收藏成功!"
+			var favorite = new Favorite({
+				movie_id: req.body.movie_id,
+				movie_name: req.body.movie_name,
+				user_id: req.auth.user_id,
+				user_name: req.auth.user_name,
+				favorite: true,
+				createDate: Date.now()
 			})
-		})
+			// 通过验证后保存模型 返回信息
+			favorite.save((err, newFavorite) => {
+				if (err) {
+					returnErr(res, err, next, (errStatus = 500), (errMsg = "收藏失败!"))
+					return
+				}
+				res.status(201).json({
+					status: 0,
+					message: "收藏成功!",
+					newFavorite
+				})
+			})
 		}
 	}
 ]
@@ -541,11 +542,11 @@ exports.user_delFavoriteMovie = [
 		if (checkError(req, res)) {
 			return
 		}
-		if(req.auth) {
+		if (req.auth) {
 			Favorite.findOneAndDelete(req.params.favorite_id).exec((err) => {
 				res.json({
-					status : 0,
-					message : "取消成功!"
+					status: 0,
+					message: "取消成功!"
 				})
 			})
 		}
@@ -567,20 +568,20 @@ exports.user_getUserIsFavoriteMovie = [
 		if (checkError(req, res)) {
 			return
 		}
-		if(req.auth) {
+		if (req.auth) {
 			Favorite.find({
-				movie_id : req.params.movie_id
-			}).exec((err,find_movie) => {
-				if(find_movie.length > 0){
+				movie_id: req.params.movie_id
+			}).exec((err, find_movie) => {
+				if (find_movie.length > 0) {
 					res.json({
-						status : 0,
-						message : "已收藏!",
+						status: 0,
+						message: "已收藏!",
 						find_movie
 					})
-				}else {
+				} else {
 					res.json({
-						status : 1,
-						message : "未收藏!"
+						status: 1,
+						message: "未收藏!"
 					})
 				}
 			})
