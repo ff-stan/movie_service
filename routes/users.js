@@ -41,7 +41,9 @@ router.post("/favorite", user_controller.user_favoriteMovie)
 router.delete("/favorite/:favorite_id", user_controller.user_delFavoriteMovie)
 // 查询用户收藏列表
 router.get("/favorite", user_controller.user_allFavorite)
-//查询对应电影id的收藏数
+// 查询用户是否收藏了对应电影
+router.get("/favorite/user/:movie_id", user_controller.user_getUserIsFavoriteMovie)
+// 查询对应电影id的收藏数
 router.get("/favorite/:movie_id", user_controller.user_findMoviFavorite)
 
 //用户找回密码

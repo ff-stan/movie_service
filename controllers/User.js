@@ -551,6 +551,42 @@ exports.user_delFavoriteMovie = [
 		}
 	}
 ]
+// 查询用户是否收藏了对应电影
+exports.user_getUserIsFavoriteMovie = [
+	// 清洗请求过来的数据
+	checkSchema({
+		movie_id: {
+			in: ["params", "query"],
+			errorMessage: "电影id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		// 当验证出现错误时返回错误信息集
+		if (checkError(req, res)) {
+			return
+		}
+		if(req.auth) {
+			Favorite.find({
+				movie_id : req.params.movie_id
+			}).exec((err,find_movie) => {
+				if(find_movie.length > 0){
+					res.json({
+						status : 0,
+						message : "已收藏!",
+						find_movie
+					})
+				}else {
+					res.json({
+						status : 1,
+						message : "未收藏!"
+					})
+				}
+			})
+		}
+	}
+]
 // 查询用户收藏列表
 exports.user_allFavorite = [
 	(req, res, next) => {
