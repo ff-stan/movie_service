@@ -37,6 +37,8 @@ router.get("/evaluate", user_controller.user_allEvaluate)
 
 // 用户收藏电影
 router.post("/favorite", user_controller.user_favoriteMovie)
+// 用户取消收藏电影
+router.delete("/favorite/:favorite_id", user_controller.user_delFavoriteMovie)
 // 查询用户收藏列表
 router.get("/favorite", user_controller.user_allFavorite)
 //查询对应电影id的收藏数

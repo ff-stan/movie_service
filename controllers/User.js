@@ -496,67 +496,59 @@ exports.user_favoriteMovie = [
 	// 清洗请求过来的数据
 	body("movie_id", "电影id为空!").trim().notEmpty(),
 	body("movie_name", "电影名称为空!").trim().notEmpty(),
-	body("favorite", "是否收藏为空!").trim().notEmpty(),
 	(req, res, next) => {
 		// 当验证出现错误时返回错误信息集
 		if (checkError(req, res)) {
 			return
 		}
-		// 对应电影的收藏只能有一个 已存在时就更新
-		Favorite.find({
+		if(req.auth) {
+			//  创建一个新的模型
+		var favorite = new Favorite({
 			movie_id: req.body.movie_id,
 			movie_name: req.body.movie_name,
 			user_id: req.auth.user_id,
-			user_name: req.auth.user_name
-		}).exec((err, find_favorite) => {
-			if (find_favorite.length === 0) {
-				//  创建一个新的模型
-				var favorite = new Favorite({
-					movie_id: req.body.movie_id,
-					movie_name: req.body.movie_name,
-					user_id: req.auth.user_id,
-					user_name: req.auth.user_name,
-					favorite: req.body.favorite,
-					createDate: Date.now()
-				})
-				// 通过验证后保存模型 返回信息
-				favorite.save((err) => {
-					if (err) {
-						returnErr(res, err, next, (errStatus = 500), (errMsg = "评分失败!"))
-						return
-					}
-					res.status(201).json({
-						status: 0,
-						message: "收藏成功!"
-					})
-				})
-			} else {
-				Favorite.findByIdAndUpdate(
-					{
-						_id: find_favorite[0]._id
-					},
-					{
-						$set: {
-							favorite: req.body.favorite,
-							createDate: Date.now()
-						}
-					},
-					{
-						new: true
-					}
-				).exec((err, new_favorite) => {
-					if (err) {
-						returnErr(res, err, next, (errStatus = 500))
-						return
-					}
-					res.json({
-						status: 0,
-						message: "已修改!",
-						new_favorite: new_favorite
-					})
-				})
-			}
+			user_name: req.auth.user_name,
+			favorite: true,
+			createDate: Date.now()
 		})
+		// 通过验证后保存模型 返回信息
+		favorite.save((err) => {
+			if (err) {
+				returnErr(res, err, next, (errStatus = 500), (errMsg = "收藏失败!"))
+				return
+			}
+			res.status(201).json({
+				status: 0,
+				message: "收藏成功!"
+			})
+		})
+		}
+	}
+]
+// 用户取消收藏电影
+exports.user_delFavoriteMovie = [
+	// 清洗请求过来的数据
+	checkSchema({
+		favorite_id: {
+			in: ["params", "query"],
+			errorMessage: "收藏id传递错误",
+			trim: true,
+			isEmpty: false
+		}
+	}),
+	(req, res, next) => {
+		// 当验证出现错误时返回错误信息集
+		if (checkError(req, res)) {
+			return
+		}
+		if(req.auth) {
+			Favorite.findOneAndDelete(req.params.favorite_id).exec((err) => {
+				res.json({
+					status : 0,
+					message : "取消成功!"
+				})
+			})
+		}
 	}
 ]
 // 查询用户收藏列表
