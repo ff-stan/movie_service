@@ -228,6 +228,7 @@ exports.index_articleComment = [
 					$project: {
 						user_id : 1,
 						article_id : 1,
+						article_title : 1,
 						username: 1,
 						context: 1,
 						sendDate: 1,
