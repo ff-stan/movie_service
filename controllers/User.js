@@ -248,6 +248,7 @@ exports.user_changeAvatar = [
 exports.user_comment = [
 	// 清洗请求过来的数据
 	body("movie_id", "电影id为空!").trim().notEmpty(),
+	body("movie_name", "电影名称为空!").trim().notEmpty(),
 	body("context", "评论内容为空!").trim().notEmpty(),
 	(req, res, next) => {
 		if (req.auth) {
@@ -256,6 +257,7 @@ exports.user_comment = [
 				username: req.auth.user_name,
 				user_id: req.auth.user_id,
 				movie_id: req.body.movie_id,
+				movie_name: req.body.movie_name,
 				context: req.body.context,
 				commentNumSuppose: 0,
 				sendDate: Date.now(),
@@ -281,6 +283,7 @@ exports.user_comment = [
 exports.user_articleComment = [
 	// 清洗请求过来的数据
 	body("article_id", "电影id为空!").trim().notEmpty(),
+	body("article_title", "电影标题为空!").trim().notEmpty(),
 	body("context", "评论内容为空!").trim().notEmpty(),
 	(req, res, next) => {
 		if (req.auth) {
@@ -289,6 +292,7 @@ exports.user_articleComment = [
 				username: req.auth.user_name,
 				user_id: req.auth.user_id,
 				article_id: req.body.article_id,
+				article_title: req.body.article_title,
 				context: req.body.context,
 				commentNumSuppose: 0,
 				sendDate: Date.now(),
