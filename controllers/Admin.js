@@ -618,7 +618,69 @@ exports.admin_allArticleComment = [
         }
     }
 ]
-
+// 审核文章评论
+exports.admin_CheckArticleComment = [
+    checkSchema({
+        comment_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "评论id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            ArticleComment.findByIdAndUpdate(
+                {
+                    _id: req.params.comment_id
+                },
+                {
+                    $set: {
+                        check: true
+                    }
+                },
+                {
+                    new: true
+                }
+            ).exec((err, updata_comment) => {
+                if (err) { returnErr(res, err, next, errMsg = "审核失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    message: "审核成功!",
+                    data: updata_comment
+                })
+            })
+        }
+    }
+]
+// 删除文章评论
+exports.admin_DelArticleComment = [
+    checkSchema({
+        comment_id: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "评论id传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        checkError(req, res)
+        if (req.auth.userAdmin) {
+            ArticleComment.findByIdAndRemove(
+                {
+                    _id: req.params.comment_id
+                }
+            ).exec((err) => {
+                if (err) { returnErr(res, err, next, errMsg = "删除失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    message: "删除成功!"
+                })
+            })
+        }
+    }
+]
 
 // 新增主页推荐
 exports.admin_addRecommend = [

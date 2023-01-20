@@ -51,6 +51,10 @@ router.put('/article/:article_id', admin_controllers.admin_updataArticle)
 router.delete('/article/:article_id', admin_controllers.admin_delArticle)
 // 获取所有文章评论
 router.get('/articleComment/:checkType', admin_controllers.admin_allArticleComment)
+//将评论进行审核 未审核过的不予展示
+router.put('/articleComment/:comment_id', admin_controllers.admin_CheckArticleComment)
+//删除评论
+router.delete('/articleComment/:comment_id', admin_controllers.admin_DelArticleComment)
 
 // 删除电影评分
 router.delete('/evaluate/:evaluate_id',admin_controllers.admin_delEvaluate)
