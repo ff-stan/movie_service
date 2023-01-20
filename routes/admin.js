@@ -16,7 +16,7 @@ router.post('/movie', admin_controllers.admin_addMovieData)
 router.delete('/movie/:movie_id', admin_controllers.admin_delMovieData)
 //后台管理admin 更新电影条目
 router.put('/movie/:movie_id', admin_controllers.admin_upMovieData)
-//用get方式获取 显示所有电影数据
+//显示所有电影数据
 router.get('/movie', admin_controllers.admin_movieData)
 //新增主页推荐
 router.put('/movie/addrecommend/:movie_id', admin_controllers.admin_addRecommend)
@@ -49,6 +49,8 @@ router.post('/article', admin_controllers.admin_addArticle)
 router.put('/article/:article_id', admin_controllers.admin_updataArticle)
 //删除文章
 router.delete('/article/:article_id', admin_controllers.admin_delArticle)
+// 获取所有文章评论
+router.get('/articleComment/:checkType', admin_controllers.admin_allArticleComment)
 
 // 删除电影评分
 router.delete('/evaluate/:evaluate_id',admin_controllers.admin_delEvaluate)

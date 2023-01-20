@@ -5,7 +5,7 @@ const Mail = require('../models/mail')
 const Article = require('../models/article')
 const Recommend = require('../models/recommend')
 const Evaluate = require('../models/movieEvaluate')
-
+const ArticleComment = require('../models/articleComment')
 const jwt = require("jsonwebtoken")
 // 秘钥
 const secretKey = 'Amadeus'
@@ -593,6 +593,32 @@ exports.admin_delArticle = [
         }
     }
 ]
+// 获取所有文章评论
+exports.admin_allArticleComment = [
+	checkSchema({
+        checkType: {
+            in: ["params", "query"],
+            trim: true,
+            notEmpty: true,
+            errorMessage: "审核类型传递错误!"
+        }
+    }),
+    (req, res, next) => {
+        if (req.auth.userAdmin) {
+            ArticleComment.find({
+				check : req.params.checkType
+			}).exec((err,all_Data) => {
+                if (err) { returnErr(res, err, next, errMsg = "获取失败!", errStatus = 500) }
+                res.json({
+                    status: 0,
+                    message: "获取成功!",
+					data : all_Data
+                })
+            })
+        }
+    }
+]
+
 
 // 新增主页推荐
 exports.admin_addRecommend = [
