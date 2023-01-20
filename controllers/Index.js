@@ -252,6 +252,12 @@ exports.index_articleComment = [
 						})
 					}
 				})
+				res.json({
+					status: 1,
+					total : 0,
+					message : "查询为空",
+					data: list
+				})
 			}
 		)
 	}
