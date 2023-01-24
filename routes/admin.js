@@ -6,6 +6,7 @@ const admin_controllers = require("../controllers/Admin")
 
 //后台上传图片
 router.post('/upload', admin_controllers.admin_uploadImg)
+//导出Excel文件
 
 //后台管理需要验证其用户的后台管理权限
 router.post('/adminLogin', admin_controllers.admin_adminLogin)

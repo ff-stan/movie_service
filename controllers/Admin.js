@@ -810,7 +810,7 @@ exports.admin_uploadImg = [
                     res.json({
                         status: 0,
                         message: "文件上传成功",
-                        url : `http://120.76.175.209:3000/static/upload/${filename.filename}`
+                        url : `http://43.138.224.168:3000/static/upload/${filename.filename}`
                     })
                     res.end()
                 })
