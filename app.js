@@ -23,7 +23,7 @@ const movieRouter = require("./routes/movie")
 const app = express()
 
 // 添加压缩发送回客户端的 HTTP 响应的中间件
-app.use(compression())
+app.use(compression()) 
 // 添加设置适当的 HTTP 标头中间件
 app.use(helmet())
 
