@@ -26,7 +26,8 @@
     "mongoose": "^6.5.2",
     "morgan": "~1.9.1",
     "pug": "^3.0.2",
-    "supervisor": "^0.12.0"
+    "supervisor": "^0.12.0",
+    "xlsx": "^0.18.5"
   },
   "description": "movieProject的API服务端",
   "main": "app.js",

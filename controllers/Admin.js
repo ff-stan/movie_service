@@ -17,6 +17,9 @@ const { checkError, returnErr } = require('../utils/utils')
 const Busboy = require('busboy')
 const fs = require('fs')
 
+// 导出Excel
+const xlsx = require('xlsx')
+
 // 管理员登录
 exports.admin_adminLogin = [
     // 验证权限与是否封停
@@ -822,4 +825,50 @@ exports.admin_uploadImg = [
             })
         }
     }
+]
+
+// 导出电影数据的Excel文件
+/**
+ * 将数据转成 excel
+ * @param arrays
+ * @param sheetName
+ * @returns {any}
+ */
+ function exportExcelFromData(arrays, sheetName = '表1') {
+	let arr = [["序号","电影名称","电影封面","电影tag","上映地区","电影时长","电影简介","电影下载路径","上映时间"]]
+	arrays.forEach((x,index) => {
+		arr.push([ index + 1, 
+			x.movieName,
+			x.movieImg,
+			x.movieCategory,
+			x.movieArea,
+			x.movieDuration,
+			x.movieContext,
+			x.movieDownload,
+			x.movieTime
+		])
+	})
+	// 使用json_to_sheet方法遍历原始对象数组不行 不清楚是否是里面对象有一两个是乱序的问题导致
+	// 暂用多维数组替代
+	const jsonWorkSheet = xlsx.utils.aoa_to_sheet(arr)
+	const workBook = {
+	  SheetNames: [sheetName],
+	  Sheets: {
+		[sheetName]: jsonWorkSheet,
+	  }
+	}
+	return xlsx.write(workBook, {type: 'binary'})
+  }
+
+exports.admin_downloadMovie = [
+	(req, res) => {
+		if(req.auth.userAdmin){
+			Movie.find({},{_id :0,__v:0}).exec((err,find) => {
+				const fileBuffer = exportExcelFromData(find, '表1')
+				res.header("Access-Control-Allow-Origin","*")
+				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+				res.send(Buffer.from(fileBuffer, 'binary'))
+			})
+		}
+	  }
 ]
