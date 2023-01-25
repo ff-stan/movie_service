@@ -830,26 +830,24 @@ exports.admin_uploadImg = [
 // 导出电影数据的Excel文件
 /**
  * 将数据转成 excel
- * @param arrays
- * @param sheetName
+ * @param arrays 对象数组
+ * @param sheetName 表名
+ * @param header 列名
  * @returns {any}
  */
- function exportExcelFromData(arrays, sheetName = '表1') {
-	let arr = [["序号","电影名称","电影封面","电影tag","上映地区","电影时长","电影简介","电影下载路径","上映时间"]]
-	arrays.forEach((x,index) => {
-		arr.push([ index + 1, 
-			x.movieName,
-			x.movieImg,
-			x.movieCategory,
-			x.movieArea,
-			x.movieDuration,
-			x.movieContext,
-			x.movieDownload,
-			x.movieTime
-		])
-	})
-	// 使用json_to_sheet方法遍历原始对象数组不行 不清楚是否是里面对象有一两个是乱序的问题导致
+ function exportExcelFromData(arrays, sheetName = '表1',header) {
 	// 暂用多维数组替代
+	let arr = [header]
+	let keys = Object.keys(arrays[0]._doc) || []
+	arrays.forEach((x,index) => {
+		let temp = [index + 1]
+		keys.forEach(y => {
+			temp.push(x[y])
+		})
+		arr.push(temp)
+	})
+	// 使用json_to_sheet方法遍历原始对象数组不行 因为mongodb获取到的数据里
+	// 每个对象里面只有._doc属性能够拿到数据
 	const jsonWorkSheet = xlsx.utils.aoa_to_sheet(arr)
 	const workBook = {
 	  SheetNames: [sheetName],
@@ -864,7 +862,7 @@ exports.admin_downloadMovie = [
 	(req, res) => {
 		if(req.auth.userAdmin){
 			Movie.find({},{_id :0,__v:0}).exec((err,find) => {
-				const fileBuffer = exportExcelFromData(find, '表1')
+				const fileBuffer = exportExcelFromData(find, '表1',["序号","电影名称","电影封面","电影tag","上映地区","电影时长","电影简介","电影下载路径","上映时间"])
 				res.header("Access-Control-Allow-Origin","*")
 				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 				res.send(Buffer.from(fileBuffer, 'binary'))
