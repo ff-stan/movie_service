@@ -882,3 +882,16 @@ exports.admin_downloadArticles = [
 		}
 	  }
 ]
+// 导出用户数据
+exports.admin_downloadUsers = [
+	(req, res) => {
+		if(req.auth.userAdmin){
+			User.find({},{_id :0,password: 0,userPower:0,__v:0}).exec((err,find) => {
+				const fileBuffer = exportExcelFromData(find, '表1',["序号","用户名","邮箱","手机号","是否管理员","是否封禁","头像","性别",'简介'])
+				res.header("Access-Control-Allow-Origin","*")
+				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+				res.send(Buffer.from(fileBuffer, 'binary'))
+			})
+		}
+	  }
+]
