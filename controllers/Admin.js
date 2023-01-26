@@ -856,16 +856,21 @@ exports.admin_uploadImg = [
 	}
 	return xlsx.write(workBook, {type: 'binary'})
   }
+  // 直接返回文件
+  function exportFile(res,model,skip,header) {
+	model.find({},skip).exec((err,find) => {
+		const fileBuffer = exportExcelFromData(find, '表1',header)
+		res.header("Access-Control-Allow-Origin","*")
+		res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		res.send(Buffer.from(fileBuffer, 'binary'))
+	})
+  }
 // 导出电影数据
 exports.admin_downloadMovie = [
 	(req, res) => {
 		if(req.auth.userAdmin){
-			Movie.find({},{_id :0,__v:0}).exec((err,find) => {
-				const fileBuffer = exportExcelFromData(find, '表1',["序号","电影名称","电影封面","电影tag","上映地区","电影时长","电影简介","电影下载路径","上映时间"])
-				res.header("Access-Control-Allow-Origin","*")
-				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-				res.send(Buffer.from(fileBuffer, 'binary'))
-			})
+			exportFile(res,Movie,{_id :0,__v:0},
+				["序号","电影名称","电影封面","电影tag","上映地区","电影时长","电影简介","电影下载路径","上映时间"])
 		}
 	  }
 ]
@@ -873,12 +878,8 @@ exports.admin_downloadMovie = [
 exports.admin_downloadArticles = [
 	(req, res) => {
 		if(req.auth.userAdmin){
-			Article.find({},{_id :0,__v:0}).exec((err,find) => {
-				const fileBuffer = exportExcelFromData(find, '表1',["序号","文章标题","文章内容","发布时间","作者","封面图片"])
-				res.header("Access-Control-Allow-Origin","*")
-				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-				res.send(Buffer.from(fileBuffer, 'binary'))
-			})
+			exportFile(res,Article,{_id :0,__v:0},
+				["序号","文章标题","文章内容","发布时间","作者","封面图片"])
 		}
 	  }
 ]
@@ -886,12 +887,8 @@ exports.admin_downloadArticles = [
 exports.admin_downloadUsers = [
 	(req, res) => {
 		if(req.auth.userAdmin){
-			User.find({},{_id :0,password: 0,userPower:0,__v:0}).exec((err,find) => {
-				const fileBuffer = exportExcelFromData(find, '表1',["序号","用户名","邮箱","手机号","是否管理员","是否封禁","头像","性别",'简介'])
-				res.header("Access-Control-Allow-Origin","*")
-				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-				res.send(Buffer.from(fileBuffer, 'binary'))
-			})
+			exportFile(res,User,{_id :0,password: 0,userPower:0,__v:0},
+				["序号","用户名","邮箱","手机号","是否管理员","是否封禁","头像","性别",'简介'])
 		}
 	  }
 ]
