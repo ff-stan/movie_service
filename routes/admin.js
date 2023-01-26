@@ -9,6 +9,8 @@ router.post('/upload', admin_controllers.admin_uploadImg)
 
 //导出电影数据Excel文件
 router.get('/download/movie',admin_controllers.admin_downloadMovie)
+//导出文章数据Excel文件
+router.get('/download/article',admin_controllers.admin_downloadArticles)
 
 //后台管理需要验证其用户的后台管理权限
 router.post('/adminLogin', admin_controllers.admin_adminLogin)

@@ -827,7 +827,6 @@ exports.admin_uploadImg = [
     }
 ]
 
-// 导出电影数据的Excel文件
 /**
  * 将数据转成 excel
  * @param arrays 对象数组
@@ -857,12 +856,25 @@ exports.admin_uploadImg = [
 	}
 	return xlsx.write(workBook, {type: 'binary'})
   }
-
+// 导出电影数据
 exports.admin_downloadMovie = [
 	(req, res) => {
 		if(req.auth.userAdmin){
 			Movie.find({},{_id :0,__v:0}).exec((err,find) => {
 				const fileBuffer = exportExcelFromData(find, '表1',["序号","电影名称","电影封面","电影tag","上映地区","电影时长","电影简介","电影下载路径","上映时间"])
+				res.header("Access-Control-Allow-Origin","*")
+				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+				res.send(Buffer.from(fileBuffer, 'binary'))
+			})
+		}
+	  }
+]
+// 导出文章数据
+exports.admin_downloadArticles = [
+	(req, res) => {
+		if(req.auth.userAdmin){
+			Article.find({},{_id :0,__v:0}).exec((err,find) => {
+				const fileBuffer = exportExcelFromData(find, '表1',["序号","文章标题","文章内容","发布时间","作者","封面图片"])
 				res.header("Access-Control-Allow-Origin","*")
 				res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 				res.send(Buffer.from(fileBuffer, 'binary'))
