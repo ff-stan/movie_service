@@ -226,9 +226,9 @@ exports.index_articleComment = [
 				},
 				{
 					$project: {
-						user_id : 1,
-						article_id : 1,
-						article_title : 1,
+						user_id: 1,
+						article_id: 1,
+						article_title: 1,
 						username: 1,
 						context: 1,
 						sendDate: 1,
@@ -239,25 +239,27 @@ exports.index_articleComment = [
 			],
 			(err, data) => {
 				let list = []
-				data.forEach((x,index) => {
-					if(req.params.article_id === `${x.article_id}`){
+				data.forEach((x, index) => {
+					if (req.params.article_id === `${x.article_id}`) {
 						list.push(x)
 					}
-					if(data.length === index+1){
+					if (data.length === index + 1) {
 						res.json({
 							status: 0,
-							total : list.length,
+							total: list.length,
 							message: "查询成功!",
 							data: list
 						})
 					}
 				})
-				res.json({
-					status: 1,
-					total : 0,
-					message : "查询为空",
-					data: list
-				})
+				if (list.length === 0) {
+					res.json({
+						status: 1,
+						total: 0,
+						message: "查询为空",
+						data: list
+					})
+				}
 			}
 		)
 	}
