@@ -127,7 +127,7 @@ exports.index_search = [
 		})
 		// 当两个promise都res才会返回结果
 		Promise.all([movie, article]).then(() => {
-			res.json({
+		return	res.json({
 				status: 0,
 				searchData: searchData
 			})
@@ -150,7 +150,7 @@ exports.index_showArticle = [
 						returnErr(res, err, next)
 					}
 					if (find_article) {
-						res.json({
+					return 	res.json({
 							status: 0,
 							message: "获取成功!",
 							total: find_article.length,
@@ -164,7 +164,7 @@ exports.index_showArticle = [
 					returnErr(res, err, next)
 				}
 				if (find_article) {
-					res.json({
+					return res.json({
 						status: 0,
 						message: "获取成功!",
 						total: find_article.length,
@@ -190,14 +190,14 @@ exports.index_articleDetails = [
 			_id: req.params.article_id
 		}).exec((err, find_article) => {
 			if (err) {
-				returnErr(res, err, next)
+				return returnErr(res, err, next)
 			}
 			if (find_article) {
-				res.json({
+				return res.json({
 					status: 0,
 					message: "获取成功!",
 					data: find_article
-				})
+				}) 
 			}
 		})
 	}
@@ -244,7 +244,7 @@ exports.index_articleComment = [
 						list.push(x)
 					}
 					if (data.length === index + 1) {
-						res.json({
+						return res.json({
 							status: 0,
 							total: list.length,
 							message: "查询成功!",
@@ -252,14 +252,6 @@ exports.index_articleComment = [
 						})
 					}
 				})
-				if (list.length === 0) {
-					res.json({
-						status: 1,
-						total: 0,
-						message: "查询为空",
-						data: list
-					})
-				}
 			}
 		)
 	}
