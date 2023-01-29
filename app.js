@@ -19,6 +19,7 @@ const indexRouter = require("./routes/index")
 const usersRouter = require("./routes/users")
 const adminRouter = require("./routes/admin")
 const movieRouter = require("./routes/movie")
+const mockRouter = require("./routes/mock")
 
 const app = express()
 
@@ -40,6 +41,7 @@ app.use(
 			"/admin/adminLogin",
 			/^\/movie\/.*/,
 			/^\/index\/.*/,
+			/^\/mock\/.*/,
 			/^\/static\/.*/
 		]
 	})
@@ -61,6 +63,7 @@ app.use("/index", indexRouter)
 app.use("/users", usersRouter)
 app.use("/admin", adminRouter)
 app.use("/movie", movieRouter)
+app.use("/mock",mockRouter)
 
 // 设置静态文件路径 可以用http://localhost:3000/static/images/5.jpg 访问到public下的文件夹
 let options = {
